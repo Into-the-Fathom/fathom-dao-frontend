@@ -4,7 +4,6 @@ import { useContext, useState } from 'react';
 import BeatLoader from 'react-spinners/BeatLoader'
 import { Web3Store } from '../store/web3Store'
 
-
 type Props = {
   handleOpenModal: any
 };
