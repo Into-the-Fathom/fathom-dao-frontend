@@ -5,6 +5,10 @@ node_modules
 .pnp
 .pnp.js
 
+artifacts
+.vscode
+cache
+
 # testing
 coverage
 apps/bitlego-automation-tests/cypress/downloads

@@ -6,6 +6,9 @@ import { JsonRpcPayload, JsonRpcResponse } from 'web3-core-helpers'
 import { AbstractProvider } from 'web3-core/types'
 import { Web3Store } from '../store/web3Store'
 
+
+
+
 const infuraProjectId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID
 
 export declare class WalletConnectWeb3Provider extends WalletConnectProvider implements AbstractProvider {
@@ -28,10 +31,10 @@ export async function handleInjectedProvider() {
   const accounts = await provider.request({ method: 'eth_requestAccounts' });
   
   // The following code seems not working if trigger disconnect from MetaMask Chrome extension
-  provider.on("disconnect", (error: any) => {
-    Web3Store.clearState()
-    console.log(error)
-  });
+  // provider.on("disconnect", (error: any) => {
+  //   Web3Store.clearState()
+  //   console.log(error)
+  // });
   
   return dispatchStates(accounts[0], provider, web3)
 }
@@ -48,10 +51,10 @@ export async function handleWalletConnect() {
   const web3 = new Web3(provider as WalletConnectWeb3Provider)
   const accounts = await web3.eth.getAccounts()
 
-  provider.on("disconnect", (code: number, reason: string) => {
-    Web3Store.clearState()
-    console.log(code, reason)
-  });
+  // provider.on("disconnect", (code: number, reason: string) => {
+  //   Web3Store.clearState()
+  //   console.log(code, reason)
+  // });
 
   return dispatchStates(accounts[0], provider, web3)
 }
@@ -61,6 +64,7 @@ function dispatchStates(account: string, provider: any, web3: Web3) {
   Web3Store.setAccount(account)
   Web3Store.setProvider(provider)
   Web3Store.setWeb3(web3)
+  
   
   return { account, web3 }
 }

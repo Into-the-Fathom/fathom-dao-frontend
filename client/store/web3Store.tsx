@@ -11,9 +11,11 @@ export class Web3StoreImpl{
             account: observable,
             provider: observable,
             web3: observable,
+            accountConnected: computed,
             setAccount: action,
             setProvider: action,
             setWeb3: action
+            
         });
     }  
 
@@ -27,6 +29,10 @@ export class Web3StoreImpl{
 
     setWeb3(web3: any){
         this.web3 = web3;
+    }
+
+    get accountConnected() {
+        return this.account != null
     }
 
     clearState(){
