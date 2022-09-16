@@ -193,16 +193,7 @@ const Staking = observer((props) => {
         &nbsp; &nbsp;
         &nbsp; &nbsp;
         &nbsp; &nbsp;
-        <Button
-          size='md'
-          height='48px'
-          width='200px'
-          border='2px'
-          borderColor='green.500'
-        >
-          Unstake
-        </Button>
-
+      
         &nbsp; &nbsp;
         &nbsp; &nbsp;
         &nbsp; &nbsp;
@@ -215,7 +206,7 @@ const Staking = observer((props) => {
           border='2px'
           borderColor='green.500'
         >
-          Log VETOKEN
+          VOTE TOKEN BALANCE
         </Button>
         <br />
         <br />
