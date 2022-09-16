@@ -6,29 +6,28 @@ import { sendTransaction as stakingTransactions } from "../../helpers/stakingCon
 import { makeBatchCall as stakingBatchCalls } from '../../helpers/stakingContract.js';
 
 import { sendTransaction as mainTokenTransactions } from '../../helpers/mainToken.js'
-import { sendTransaction as veMainTokenTransaction } from "../../helpers/veMainToken.js";
 import { makeBatchCall as veMainTokenCalls } from '../../helpers/veMainToken.js';
 
 import contractAddress from "../../src/contracts/contract-address.json"
 import StakingArtifact from "../../src/contracts/Staking.json";
 import { observer } from "mobx-react";
-import { Web3Store } from '../../store/web3Store';
+//import { Web3Store } from '../../store/web3Store';
 import InputRange from "react-input-range";
+import { useStores } from '../../store';
 
 
 const Staking = observer((props) => {
-  const state = {
-    value: 0
-  }
+  const {web3Store, govnStore} = useStores();
+  
 
   const [VOTETokenBalance, setVOTETokenBalance] = useState("0")
-  const [unlockPeriod, setUnlockPeriod] = useState<number | undefined>(0)
+  const [unlockPeriod, setUnlockPeriod] = useState<number | undefined>(1)
   const [stakePosition, setStakePosition] = useState<number | undefined>(0)
   
   const getTimeStamp = async () => {
 
-    var blockNumber = await Web3Store.web3.eth.getBlockNumber();
-    var block = await Web3Store.web3.eth.getBlock(blockNumber);
+    var blockNumber = await web3Store.web3.eth.getBlockNumber();
+    var block = await web3Store.web3.eth.getBlock(blockNumber);
 
     var timestamp = block.timestamp
     return timestamp;
@@ -53,12 +52,12 @@ const Staking = observer((props) => {
     await mainTokenTransactions(
       "approve",
       [contractAddress.Staking, toWei(stakePosition,"ether")],
-      { from: Web3Store.account }
+      { from: web3Store.account }
     )
     await stakingTransactions(
       "createLock",
       [toWei(stakePosition,"ether"), lockingPeriod],
-      { from: Web3Store.account }
+      { from: web3Store.account }
     )
 
 
@@ -74,10 +73,12 @@ const Staking = observer((props) => {
   const getVoteBalance = async () => {
     const methods = [
       // { methodName: "stakedEthTotal" },
-      { methodName: "balanceOf", args: [Web3Store.account] },
+      { methodName: "balanceOf", args: [web3Store.account] },
       // { methodName: "lastUpdateTime" }
     ];
-    setVOTETokenBalance((await veMainTokenCalls(methods)).toString());
+    var _voteTokenBalance = (await veMainTokenCalls(methods)).toString()
+    setVOTETokenBalance(_voteTokenBalance);
+    govnStore.setVoteTokeBalance(_voteTokenBalance)
   }
 
   // const getVoteBalance = async() => {
@@ -226,9 +227,9 @@ const Staking = observer((props) => {
           My Estimated Reward:{' '}
           {((props.myStake * props.apy) / 36500).toFixed(3)} TestToken (Tst)
         </h5> */}
-        {VOTETokenBalance !== "0" ?
+        {govnStore.voteTokenBalance !== null ?
         <h5>
-          VOTE Tokens Balance:{parseFloat(fromWei(VOTETokenBalance)).toFixed(2)} VOTE Token
+          VOTE Tokens Balance:{parseFloat(fromWei(govnStore.voteTokenBalance)).toFixed(2)} VOTE Token
         </h5>
         :
         <h5>
