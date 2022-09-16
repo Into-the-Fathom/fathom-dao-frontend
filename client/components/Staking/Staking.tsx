@@ -14,6 +14,7 @@ import { observer } from "mobx-react";
 //import { Web3Store } from '../../store/web3Store';
 import InputRange from "react-input-range";
 import { useStores } from '../../store';
+import { UseAppStore } from '../../pages/AppStoreContext';
 
 
 const Staking = observer((props) => {

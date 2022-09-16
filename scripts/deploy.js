@@ -82,7 +82,7 @@ async function main() {
 
   const MainToken = await ethers.getContractFactory("ERC20MainToken");
  // ethers.utils.parseUnits(1000000.toString(), "ether")
-  const mainToken = await MainToken.deploy("Main Token", "R1T", ethers.utils.parseEther("1000000"), accounts[1].address)
+  const mainToken = await MainToken.deploy("Main Token", "FTHM", ethers.utils.parseEther("1000000"), accounts[1].address)
   await mainToken.deployed()
   const VeMainToken = await ethers.getContractFactory("VeMainToken");
   const veMainToken = await VeMainToken.deploy();
