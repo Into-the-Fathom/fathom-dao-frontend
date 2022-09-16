@@ -1,28 +1,34 @@
 import React, { useState } from 'react';
 import classes from "../../styles/Staking.module.css";
-import { Button,Input,SimpleGrid,Box } from '@chakra-ui/react';
-import { toWei,fromWei } from '../../helpers/base';
-import {sendTransaction as stakingTransactions} from "../../helpers/stakingContract.js";
-import { makeBatchCall as stakingBatchCalls} from '../../helpers/stakingContract.js';
+import { Button, Input, SimpleGrid, Box } from '@chakra-ui/react';
+import { toWei, fromWei } from '../../helpers/base';
+import { sendTransaction as stakingTransactions } from "../../helpers/stakingContract.js";
+import { makeBatchCall as stakingBatchCalls } from '../../helpers/stakingContract.js';
 
-import {sendTransaction as mainTokenTransactions} from '../../helpers/mainToken.js'
-import {sendTransaction as veMainTokenTransaction} from "../../helpers/veMainToken.js";
-import { makeBatchCall as veMainTokenCalls} from '../../helpers/veMainToken.js';
+import { sendTransaction as mainTokenTransactions } from '../../helpers/mainToken.js'
+import { sendTransaction as veMainTokenTransaction } from "../../helpers/veMainToken.js";
+import { makeBatchCall as veMainTokenCalls } from '../../helpers/veMainToken.js';
 
 import contractAddress from "../../src/contracts/contract-address.json"
 import StakingArtifact from "../../src/contracts/Staking.json";
 import { observer } from "mobx-react";
 import { Web3Store } from '../../store/web3Store';
+import InputRange from "react-input-range";
 
-const Staking = observer(( props) => {
 
-  const [ VOTETokenBalance, setVOTETokenBalance ] = useState("0")
+const Staking = observer((props) => {
+  const state = {
+    value: 0
+  }
 
+  const [VOTETokenBalance, setVOTETokenBalance] = useState("0")
+  const [unlockPeriod, setUnlockPeriod] = useState<number | undefined>(0)
+  const [stakePosition, setStakePosition] = useState<number | undefined>(0)
   
   const getTimeStamp = async () => {
-    
+
     var blockNumber = await Web3Store.web3.eth.getBlockNumber();
-    var block =  await Web3Store.web3.eth.getBlock(blockNumber);
+    var block = await Web3Store.web3.eth.getBlock(blockNumber);
 
     var timestamp = block.timestamp
     return timestamp;
@@ -32,8 +38,7 @@ const Staking = observer(( props) => {
   const inputChangeHandler = (event) => {
     event.preventDefault();
     setInputValue(event.target.value);
-    props.inputHandler(event.target.value);
-    console.log(inputValue)
+    setStakePosition(event.target.value);
   };
 
   const goMax = () => {
@@ -41,51 +46,49 @@ const Staking = observer(( props) => {
     props.inputHandler(props.userBalance);
   };
 
-  const createLock = async() => {
-    const sumToDeposit = Web3Store.web3.utils.toWei('1000', 'ether');
-    let lockingPeriod = parseInt((await getTimeStamp()).toString()) + 365 * 24 * 60 * 60;
+  const createLock = async () => {
+    const WEEK = 604800
+    let lockingPeriod = parseInt((await getTimeStamp()).toString()) + unlockPeriod * 604800;
 
     await mainTokenTransactions(
       "approve",
-      [contractAddress.Staking, sumToDeposit],
-      {from: Web3Store.account}
+      [contractAddress.Staking, toWei(stakePosition,"ether")],
+      { from: Web3Store.account }
     )
     await stakingTransactions(
       "createLock",
-      [sumToDeposit, lockingPeriod],
-      {from: Web3Store.account}
+      [toWei(stakePosition,"ether"), lockingPeriod],
+      { from: Web3Store.account }
     )
 
 
   }
 
-  const getVoteBalance = async() => {
+  const handleChange = (event) => {
+    setUnlockPeriod(event.target.value);
+  }
+
+
+
+
+  const getVoteBalance = async () => {
     const methods = [
       // { methodName: "stakedEthTotal" },
       { methodName: "balanceOf", args: [Web3Store.account] },
       // { methodName: "lastUpdateTime" }
     ];
     setVOTETokenBalance((await veMainTokenCalls(methods)).toString());
-    console.log(fromWei(VOTETokenBalance))
-
-    // await stakingTransactions(
-    //   "getLockInfo",
-    //   ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", 10],
-    //   {from: Web3Store.account}
-    // )
-
-    //console.log(createLock)
   }
 
   // const getVoteBalance = async() => {
   //   let web3 = Web3Store.web3;
   //   const address = contractAddress.Staking
   //   let contractInstance;
-    
+
   //   contractInstance = new web3.eth.Contract(StakingArtifact.abi, address);
-    
+
   //   await contractInstance.methods.getLockInfo("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",1).call();
-    
+
   // }
   return (
 
@@ -94,7 +97,7 @@ const Staking = observer(( props) => {
 
         <form>
 
-              <label htmlFor="StakeValue"><b> Enter Lock Position </b></label>
+          <label htmlFor="StakeValue"><b> Enter Lock Position </b></label>
           &nbsp; &nbsp;
           &nbsp; &nbsp;
           <input
@@ -110,19 +113,16 @@ const Staking = observer(( props) => {
           <br />
           <br />
 
-
-
-
-
-          <label htmlFor="UnlockPeriod"><b> Unlock Period </b></label>
           &nbsp; &nbsp;
           &nbsp; &nbsp;
           &nbsp; &nbsp;
 
-          
+
           &nbsp; &nbsp;
 
-          <input
+
+
+          {/* <input
             className={classes.inputbox}
             type="week"
             id="UnlockPeriod"
@@ -132,7 +132,32 @@ const Staking = observer(( props) => {
             min="2022-W37"
             max="2023-W37"
 
-          ></input>
+          ></input> */}
+          <div className={classes.slideContainer}>
+            <label><b>Unlock Period(weeks)</b></label>
+
+          &nbsp; &nbsp;
+        
+          &nbsp; &nbsp;
+            <input
+              className = {classes.slider}
+              id="typeinp"
+              type="range"
+              min="1" max="52"
+              value={unlockPeriod}
+              onChange={handleChange}
+              step="1" />
+              <br/>
+              &nbsp; &nbsp;
+              &nbsp; &nbsp;
+              &nbsp; &nbsp;
+              &nbsp; &nbsp;
+              &nbsp; &nbsp;
+
+            <label><b>{unlockPeriod} weeks</b></label>
+          </div>
+
+
 
         </form>
 
@@ -151,7 +176,7 @@ const Staking = observer(( props) => {
         <br />
         <br />
 
-        <Button onClick = {createLock}
+        <Button onClick={createLock}
           size='md'
           height='48px'
           width='200px'
@@ -176,7 +201,12 @@ const Staking = observer(( props) => {
           Unstake
         </Button>
 
-        <Button onClick = {getVoteBalance}
+        &nbsp; &nbsp;
+        &nbsp; &nbsp;
+        &nbsp; &nbsp;
+        &nbsp; &nbsp;
+
+        <Button onClick={getVoteBalance}
           size='md'
           height='48px'
           width='200px'
@@ -188,17 +218,23 @@ const Staking = observer(( props) => {
         <br />
         <br />
 
-        <h4>
+        {/* <h4>
           Total Staked (by all users): {props.totalStaked} TestToken (Tst)
         </h4>
         <h5>My Stake: {props.myStake} TestToken (Tst) </h5>
         <h5>
           My Estimated Reward:{' '}
           {((props.myStake * props.apy) / 36500).toFixed(3)} TestToken (Tst)
+        </h5> */}
+        {VOTETokenBalance !== "0" ?
+        <h5>
+          VOTE Tokens Balance:{parseFloat(fromWei(VOTETokenBalance)).toFixed(2)} VOTE Token
         </h5>
-        <h5 onClick={goMax} className={classes.goMax}>
-          My balance: {props.userBalance} TestToken (Tst)
+        :
+        <h5>
+          VOTE Tokens Balance: NO VOTE Token
         </h5>
+        }
       </div>
     </div>
   );
