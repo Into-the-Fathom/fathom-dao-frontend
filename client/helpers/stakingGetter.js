@@ -1,5 +1,5 @@
 import contractAddress from "../src/contracts/contract-address.json"
-import VeMainTokenArtifact from "../src/contracts/VeMainToken.json";
+import StakingGetterArtifact from "../src/contracts/StakingGetter.json";
 import { Web3Store } from "../store/web3Store";
 import {
     sendTransaction as _sendTransaction,
@@ -13,8 +13,8 @@ import {
     {
       console.log(Web3Store.web3)
       let web3 = Web3Store.web3;
-      const address = contractAddress.VeMainToken
-      contractInstance = new web3.eth.Contract(VeMainTokenArtifact.abi, address);
+      const address = contractAddress.StakingGetter
+      contractInstance = new web3.eth.Contract(StakingGetterArtifact.abi, address);
     }
 
 
@@ -34,7 +34,6 @@ import {
         initContractInstance();
         return await _makeBatchCall(contractInstance, methods);
       };
-
 
       export const makeCall =  async (methodName, args, options) => {
         initContractInstance();

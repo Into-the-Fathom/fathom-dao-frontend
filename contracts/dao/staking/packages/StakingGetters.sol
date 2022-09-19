@@ -19,6 +19,10 @@ contract StakingInitPackageGetter is StakingStorage, IStakingGetter, StakingInte
         return users[account].pendings[streamId];
     }
 
+    function getAllLocks(address account)  external view override returns (LockedBalance[] memory) {
+        return locks[account];
+    }
+
     /// @dev gets the total user deposit
     /// @param account the user address
     /// @return user total deposit in (Main Token)

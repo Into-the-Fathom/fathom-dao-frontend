@@ -2,14 +2,15 @@ import { Button, Box, Text, SimpleGrid } from "@chakra-ui/react";
 import { handleInjectedProvider, handleWalletConnect } from "../lib";
 import { useContext, useState } from 'react';
 import BeatLoader from 'react-spinners/BeatLoader'
-import { Web3Store } from '../store/web3Store'
-
+import { useStores } from '../store';
+import { observer} from 'mobx-react'
 type Props = {
   handleOpenModal: any
 };
 
-export default function ConnectButton({ handleOpenModal }: Props) {
-  const [ etherBalance, setEtherBalance ] = useState(0)
+const ConnectButton = observer(({handleOpenModal}) =>{
+
+  const { web3Store } = useStores();
   const [ loading, setLoading ] = useState(false)
 
   async function handleConnectWallet(wallet: string)  {
@@ -18,7 +19,7 @@ export default function ConnectButton({ handleOpenModal }: Props) {
       const { account, web3 } =  await handleInjectedProvider()
       const balance = await web3.eth.getBalance(account)
       console.log('balance', balance)
-      setEtherBalance(parseInt(balance)/1e18)
+      web3Store.setEtherBalance(parseInt(balance)/1e18)
     } catch (error) {
       console.error(error)  
     } finally {
@@ -26,7 +27,7 @@ export default function ConnectButton({ handleOpenModal }: Props) {
     }
   }
   // console.log('Web3Store', Web3Store)
-  return Web3Store.account ? (
+  return web3Store.account ? (
     <Box
       mt={3}
       display="flex"
@@ -37,7 +38,7 @@ export default function ConnectButton({ handleOpenModal }: Props) {
     >
       <Box px="3">
         <Text color="white" fontSize="md">
-          {etherBalance.toFixed(3)} ETH
+          {web3Store.etherBalance.toFixed(3)} ETH
         </Text>
       </Box>
       <Button
@@ -56,10 +57,10 @@ export default function ConnectButton({ handleOpenModal }: Props) {
         height="38px"
       >
         <Text color="white" fontSize="md" fontWeight="medium" mr="2">
-          {Web3Store.account &&
-            `${Web3Store.account.slice(0, 6)}...${Web3Store.account.slice(
-              Web3Store.account.length - 4,
-              Web3Store.account.length
+          {web3Store.account &&
+            `${web3Store.account.slice(0, 6)}...${web3Store.account.slice(
+              web3Store.account.length - 4,
+              web3Store.account.length
             )}`}
         </Text>
       </Button>
@@ -91,3 +92,6 @@ export default function ConnectButton({ handleOpenModal }: Props) {
     </SimpleGrid>
   );
 }
+);
+
+export default ConnectButton

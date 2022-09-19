@@ -31,5 +31,7 @@ interface IStakingGetter {
             uint256 tau,
             StreamStatus status
         );
+
+    function getAllLocks(address account)  external view  returns (LockedBalance[] memory);
     
 }

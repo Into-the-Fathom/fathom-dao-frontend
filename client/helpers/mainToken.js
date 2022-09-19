@@ -4,6 +4,7 @@ import { Web3Store } from "../store/web3Store";
 import {
     sendTransaction as _sendTransaction,
     makeBatchCall as _makeBatchCall,
+    makeCall as _makeCall
   } from "./base";
 
   let contractInstance;
@@ -34,7 +35,8 @@ import {
         return await _makeBatchCall(contractInstance, methods);
       };
 
-      export const makeCall = async method => {
+      export const makeCall =  async (methodName, args, options) => {
         initContractInstance();
-        return await _makeCall(contractInstance, method);
+        const method = contractInstance.methods[methodName](...args);
+        return await _makeCall(method, options);
       };

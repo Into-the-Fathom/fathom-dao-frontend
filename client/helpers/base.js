@@ -132,36 +132,17 @@ export const makeBatchCall = async (contractInstance, methods) => {
       }
 
       const response = await methodToCall.call(method.opts);
+      console.log(response)
       result.push(response);
     })
   );
-  return result;
-  // let result = [];
-  // for (const method of methods) {
-  //   let methodToCall;
-  //   if (method.args) {
-  //     methodToCall = contractInstance.methods[method.methodName].apply(null, method.args);
-  //   } else {
-  //     methodToCall = contractInstance.methods[method.methodName]();
-  //   }
-  //   const response = await methodToCall.call(method.opts);
-  //   result.push(response);
-  // }
-  // return result;
-};
-export const makeCall = async (contractInstance, method) => {
-    
-      
-      let response;
-      if (method.args) {
-        response = await contractInstance.methods.getLockInfo(...method.args).call();
-        
-      } else {
-        response = await contractInstance.methods[method.methodName]();
-      }
 
-      console.log(response)
-      return response
+};
+
+
+export const makeCall = async (method, options) => {
+      const result = await method.call(options)
+      return result
 }
 const estimateGas = (method, from, gas) => {
   return new Promise((resolve, reject) => {

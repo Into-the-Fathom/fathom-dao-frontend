@@ -140,15 +140,18 @@ async function main() {
     lockingVoteWeight,
     maxNumberOfLocks
   )
-
+  
+  const StakingGetter = await ethers.getContractFactory("StakingGetters");
+  const stakingGetter = await StakingGetter.deploy(staking.address);
+  await stakingGetter.deployed();
 
   // We also save the contract's artifacts and address in the frontend directory
-  saveFrontendFiles(staking, mainToken, veMainToken);
+  saveFrontendFiles(staking, mainToken, veMainToken,stakingGetter);
 
   
 }
 
-function saveFrontendFiles(staking, mainToken, veMainToken) {
+function saveFrontendFiles(staking, mainToken, veMainToken,stakingGetter) {
   const fs = require("fs");
   const contractsDir = path.join(__dirname, "..", "client", "src", "contracts");
 
@@ -158,7 +161,7 @@ function saveFrontendFiles(staking, mainToken, veMainToken) {
 
   fs.writeFileSync(
     path.join(contractsDir, "contract-address.json"),
-    JSON.stringify({ Staking: staking.address, MainToken: mainToken.address, VeMainToken: veMainToken.address }, undefined, 2),
+    JSON.stringify({ Staking: staking.address, MainToken: mainToken.address, VeMainToken: veMainToken.address, StakingGetter: stakingGetter.address }, undefined, 2),
   );
 
   console.log({ Staking: staking.address, MainToken: mainToken.address, VeMainToken: veMainToken.address })
@@ -167,6 +170,7 @@ function saveFrontendFiles(staking, mainToken, veMainToken) {
   const StakingArtifact = artifacts.readArtifactSync("StakingPackage");
   const MainTokenArtifact = artifacts.readArtifactSync("ERC20MainToken");
   const VeMainTokenArtifact = artifacts.readArtifactSync("VeMainToken");
+  const StakingGetterArtifact = artifacts.readArtifactSync("StakingGetters");
 
 
 
@@ -183,6 +187,11 @@ function saveFrontendFiles(staking, mainToken, veMainToken) {
   fs.writeFileSync(
     path.join(contractsDir, "VeMainToken.json"),
     JSON.stringify(VeMainTokenArtifact, null, 2)
+  );
+
+  fs.writeFileSync(
+    path.join(contractsDir, "StakingGetter.json"),
+    JSON.stringify(StakingGetterArtifact, null, 2)
   );
 }
 

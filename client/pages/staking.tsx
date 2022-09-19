@@ -4,7 +4,7 @@ import classes from '../styles/App.module.css'
 import ConnectButton from '../components/ConnectButton'
 import { useDisclosure } from '@chakra-ui/react'
 import AccountModal from '../components/AccountModal'
-
+import Unstaking from '../components/Unstaking/Unstaking'
 import {
   Box
 } from "@chakra-ui/react";
@@ -55,6 +55,8 @@ function Home() {
           apy={0}
           page={1}
         />
+
+      
       </div>
     </div>
   )
