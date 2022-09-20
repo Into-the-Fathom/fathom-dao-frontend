@@ -4,7 +4,7 @@ import { Button } from '@chakra-ui/react';
 import { toWei, fromWei } from '../../helpers/base';
 import { sendTransaction as stakingTransactions } from "../../helpers/stakingContract.js";
 import { makeBatchCall as stakingBatchCalls } from '../../helpers/stakingContract.js';
-import { makeCall as stakingGetterCall} from '../../helpers/stakingGetter';
+import { makeCall as stakingGetterCall } from '../../helpers/stakingGetter';
 import { sendTransaction as mainTokenTransactions } from '../../helpers/mainToken.js'
 import { makeCall as veMainTokenCall } from '../../helpers/veMainToken.js';
 
@@ -22,37 +22,37 @@ import Unstaking from '../Unstaking/Unstaking';
 const Staking = observer((props) => {
 
   useEffect(() => {
-    if(web3Store.hasProvider){
-        web3Store.provider.on("accountsChanged", () => {
-            console.log("......AccountsChanged")
-            //  const handleAccountChanged = async () =>{
-            //     const injectedProvider = web3Store.provider;
-            //     const accounts = await injectedProvider.request({ method: 'eth_requestAccounts' });
-            //     web3Store.setAccount(accounts[0])
-            //     const balance = await web3Store.web3.eth.getBalance(accounts[0])
-            //     console.log('balance', balance)
-            //     web3Store.setEtherBalance(parseInt(balance)/1e18)
-            //  }
+    if (web3Store.hasProvider) {
+      web3Store.provider.on("accountsChanged", () => {
+        console.log("......AccountsChanged")
+        //  const handleAccountChanged = async () =>{
+        //     const injectedProvider = web3Store.provider;
+        //     const accounts = await injectedProvider.request({ method: 'eth_requestAccounts' });
+        //     web3Store.setAccount(accounts[0])
+        //     const balance = await web3Store.web3.eth.getBalance(accounts[0])
+        //     console.log('balance', balance)
+        //     web3Store.setEtherBalance(parseInt(balance)/1e18)
+        //  }
 
-            //  const result = handleAccountChanged().catch(console.error)
-            window.location.reload();
-        })
+        //  const result = handleAccountChanged().catch(console.error)
+        window.location.reload();
+      })
     }
   });
-  const {web3Store, govnStore} = useStores();
-  
+  const { web3Store, govnStore } = useStores();
+
   const [lockPositions, setLockPositions] = useState([
     {
-      lockId:null,
+      lockId: null,
       VOTETokenBalance: "",
       MAINTokenBalance: "",
       RemainingUnlockPeriod: ""
     }
   ]);
   const [addLockData, setLockData] = useState({
-      VOTETokenBalance: "",
-      MAINTokenBalance: "",
-      RemainingUnlockPeriod: ""
+    VOTETokenBalance: "",
+    MAINTokenBalance: "",
+    RemainingUnlockPeriod: ""
   })
 
 
@@ -62,7 +62,7 @@ const Staking = observer((props) => {
   const [VOTETokenBalance, setVOTETokenBalance] = useState("0")
   const [unlockPeriod, setUnlockPeriod] = useState<number | undefined>(1)
   const [stakePosition, setStakePosition] = useState<number | undefined>(0)
-  
+
   const getTimeStamp = async () => {
 
     var blockNumber = await web3Store.web3.eth.getBlockNumber();
@@ -73,13 +73,13 @@ const Staking = observer((props) => {
   }
 
   const _convertToEtherBalance = async (balance) => {
-    return parseFloat(fromWei(balance)).toFixed(2)
+    return parseFloat(fromWei(balance)).toFixed(0)
   }
 
   const secondsToTime = (secs) => {
     secs = parseInt(secs)
-    let days = Math.floor(secs/ (24 * 60 * 60))
-    let remainingSecs = secs-days*24*60*60
+    let days = Math.floor(secs / (24 * 60 * 60))
+    let remainingSecs = secs - days * 24 * 60 * 60
     let hours = Math.floor(remainingSecs / (60 * 60));
 
     let divisor_for_minutes = remainingSecs % (60 * 60);
@@ -96,21 +96,20 @@ const Staking = observer((props) => {
     };
     return obj;
   }
-  const _calculateRemainingUnlockPeriod = async(unlockPeriod) => {
-    
+  const _calculateRemainingUnlockPeriod = async (unlockPeriod) => {
+
     return unlockPeriod - await getTimeStamp()
   }
 
-  const _createLockPositionObject =async (_lockId, _VOTETokenBalance,_MAINTokenBalance,_RemainingUnlockPeriod) => 
-    {
-      return {
-        lockId: _lockId,
-        VOTETokenBalance: await _convertToEtherBalance(_VOTETokenBalance),
-        MAINTokenBalance: await _convertToEtherBalance(_MAINTokenBalance),
-        RemainingUnlockPeriod: _RemainingUnlockPeriod
-      }
+  const _createLockPositionObject = async (_lockId, _VOTETokenBalance, _MAINTokenBalance, _RemainingUnlockPeriod) => {
+    return {
+      lockId: _lockId,
+      VOTETokenBalance: await _convertToEtherBalance(_VOTETokenBalance),
+      MAINTokenBalance: await _convertToEtherBalance(_MAINTokenBalance),
+      RemainingUnlockPeriod: _RemainingUnlockPeriod
     }
-  
+  }
+
   const [inputValue, setInputValue] = useState('');
 
   const inputChangeHandler = (event) => {
@@ -126,16 +125,22 @@ const Staking = observer((props) => {
 
   const createLock = async () => {
     const WEEK = 604800
-    let lockingPeriod = parseInt((await getTimeStamp()).toString()) + unlockPeriod * 604800;
-    displayAllLocks
+    console.log("timestamp: ", (await getTimeStamp()).toString())
+    let lockingPeriod = unlockPeriod * WEEK;
+    let endTime = 0
+    ///For testing Only: Remove It
+    if(lockingPeriod > 0) {
+      endTime = parseInt((await getTimeStamp()).toString()) + lockingPeriod;
+    }
+
     await mainTokenTransactions(
       "approve",
-      [contractAddress.Staking, toWei(stakePosition,"ether")],
+      [contractAddress.Staking, toWei(stakePosition, "ether")],
       { from: web3Store.account }
     )
     await stakingTransactions(
       "createLock",
-      [toWei(stakePosition,"ether"), lockingPeriod],
+      [toWei(stakePosition, "ether"), endTime],
       { from: web3Store.account }
     )
 
@@ -144,38 +149,39 @@ const Staking = observer((props) => {
   }
 
   const getAllLocks = async () => {
-    
-    
+
+
     let result = await stakingGetterCall(
       "getLocksLength",
       [web3Store.account],
     )
     console.log(result)
-    
+
     let lockPositionsList = []
     let retrievedLockPosition: any;
     let constructedLockPosition: any
-    for (let i = 0; i< toInteger(result);i++){
-      
-      const {0:amountOfMAINTkn,1:amountOfveMAINTkn,2:mainTknShares,3:positionStreamShares,4:end,5:owner}=
-      await stakingGetterCall(
-        "getLock",
-        [web3Store.account, i+1]
-      )
-      console.log("enddd",end)
+    for (let i = 0; i < toInteger(result); i++) {
+
+      const { 0: amountOfMAINTkn, 1: amountOfveMAINTkn, 2: mainTknShares, 3: positionStreamShares, 4: end, 5: owner } =
+        await stakingGetterCall(
+          "getLock",
+          [web3Store.account, i + 1]
+        )
+      console.log("enddd", end)
       constructedLockPosition = await _createLockPositionObject(
-          i+1,
-          amountOfMAINTkn,
-          amountOfveMAINTkn,
-          end
+        i + 1,
+        amountOfMAINTkn,
+        amountOfveMAINTkn,
+        end
       )
-      lockPositionsList.push(constructedLockPosition)
       
+      lockPositionsList.push(constructedLockPosition)
+
     }
-    
+    console.log(lockPositionsList)
     setLockPositions(lockPositionsList)
     setDisplayAllLocks(true)
-}
+  }
 
   const handleChange = (event) => {
     setUnlockPeriod(event.target.value);
@@ -186,15 +192,21 @@ const Staking = observer((props) => {
 
   const getVoteBalance = async () => {
     setDisplayAllLocks(false)
+    const beforeVOTETokenBalance = _voteTokenBalance
     let result = await veMainTokenCall(
       "balanceOf",
       [web3Store.account]
     )
-    
+
     var _voteTokenBalance = result.toString()
-    setVOTETokenBalance(_voteTokenBalance);
-    govnStore.setVoteTokeBalance(_voteTokenBalance)
+
+    ///@notice: This is for frontend so that marginal vote release is not displayed
+    if (parseInt(_voteTokenBalance) - parseInt(beforeVOTETokenBalance) > 1) {
+      setVOTETokenBalance(_voteTokenBalance);
+      govnStore.setVoteTokeBalance(_voteTokenBalance)
+    }
   }
+
 
 
   return (
@@ -232,23 +244,23 @@ const Staking = observer((props) => {
           <div className={classes.slideContainer}>
             <label><b>Unlock Period(weeks)</b></label>
 
-          &nbsp; &nbsp;
-        
-          &nbsp; &nbsp;
+            &nbsp; &nbsp;
+
+            &nbsp; &nbsp;
             <input
-              className = {classes.slider}
+              className={classes.slider}
               id="typeinp"
               type="range"
-              min="1" max="52"
+              min="0" max="52"
               value={unlockPeriod}
               onChange={handleChange}
               step="1" />
-              <br/>
-              &nbsp; &nbsp;
-              &nbsp; &nbsp;
-              &nbsp; &nbsp;
-              &nbsp; &nbsp;
-              &nbsp; &nbsp;
+            <br />
+            &nbsp; &nbsp;
+            &nbsp; &nbsp;
+            &nbsp; &nbsp;
+            &nbsp; &nbsp;
+            &nbsp; &nbsp;
 
             <label><b>{unlockPeriod} weeks</b></label>
           </div>
@@ -258,7 +270,7 @@ const Staking = observer((props) => {
         </form>
 
 
-    
+
         <br />
         <br />
         <br />
@@ -278,7 +290,7 @@ const Staking = observer((props) => {
         &nbsp; &nbsp;
         &nbsp; &nbsp;
         &nbsp; &nbsp;
-      
+
         &nbsp; &nbsp;
         &nbsp; &nbsp;
         &nbsp; &nbsp;
@@ -311,20 +323,21 @@ const Staking = observer((props) => {
         <br />
         <br />
 
-        {VOTETokenBalance !== "0" && displayAllLocks!=true?
-        <h5>
-          VOTE Tokens Balance:{parseFloat(fromWei(VOTETokenBalance)).toFixed(2)} VOTE Token
-        </h5>:<div></div>
-      
+        {VOTETokenBalance !== "0" && displayAllLocks != true ?
+          <h5>
+            VOTE Tokens Balance:{parseFloat(fromWei(VOTETokenBalance)).toFixed(2)} VOTE Token
+          </h5> : <div></div>
+
         }
 
-        {displayAllLocks == true?
-                <h5>
-                <Unstaking
-                 lockPositions={lockPositions}/>
-           </h5>:
-           <div></div>
-      }
+        {displayAllLocks == true ?
+          <h5>
+            <Unstaking 
+              getAllLocks={getAllLocks}
+              lockPositions={lockPositions} />
+          </h5> :
+          <div></div>
+        }
       </div>
     </div>
   );

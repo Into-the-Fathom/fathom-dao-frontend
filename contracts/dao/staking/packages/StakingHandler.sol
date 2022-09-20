@@ -8,7 +8,7 @@ import "../vault/interfaces/IVault.sol";
 import "../utils/ReentrancyGuard.sol";
 import "../utils/AdminPausable.sol";
 import "../interfaces/IStakingSetter.sol";
-
+import "../../../../node_modules/hardhat/console.sol";
 
 // solhint-disable not-rely-on-time
 contract StakingHandlers is StakingStorage, IStakingHandler, IStakingSetter, StakingInternals, ReentrancyGuard, 
@@ -208,7 +208,13 @@ contract StakingHandlers is StakingStorage, IStakingHandler, IStakingSetter, Sta
     function createLock(uint256 amount, uint256 unlockTime) external override nonReentrant pausable(1) {
         require(locks[msg.sender].length <= maxLockPositions, "max locks");
         require(amount > 0, "amount 0");
-        require(unlockTime > block.timestamp, "bad lock time");
+        console.log(block.timestamp);
+        ///@notice: THis is for testing: Remove It
+        if (unlockTime == 0){
+            unlockTime = block.timestamp;
+        }
+        require(unlockTime >= block.timestamp, "bad lock time");
+
         require(unlockTime <= block.timestamp + MAX_LOCK, "max 1 year");
 
         _before();
