@@ -175,8 +175,8 @@ const Staking = observer((props) => {
       console.log("enddd", end)
       constructedLockPosition = await _createLockPositionObject(
         i + 1,
-        amountOfMAINTkn,
         amountOfveMAINTkn,
+        amountOfMAINTkn,
         end
       )
 
@@ -218,10 +218,9 @@ const Staking = observer((props) => {
 
   return (
 
-    <div>
-      <div className={classes.center}>
+      <Box className={classes.center}>
 
-        <form>
+        <Box>
 
           <label htmlFor="StakeValue"><b> Enter Lock Position </b></label>
           &nbsp; &nbsp;
@@ -273,11 +272,6 @@ const Staking = observer((props) => {
           </div>
 
 
-
-        </form>
-
-
-
         <br />
         <br />
         <br />
@@ -288,6 +282,8 @@ const Staking = observer((props) => {
           width='200px'
           border='2px'
           borderColor='green.500'
+          bg='#00FFF9'
+          textColor='black'
         >
           Stake
         </Button>
@@ -316,9 +312,12 @@ const Staking = observer((props) => {
           width='200px'
           border='2px'
           borderColor='green.500'
+          bg='#00FFF9'
+          textColor='black'
         >
           All Lock Positions
         </Button>
+        </Box>
         <br />
         <br />
 
@@ -335,13 +334,13 @@ const Staking = observer((props) => {
             m='5'
             border='2px' borderColor='gray.200'
           >
-            <h5>
+           
               <Unstaking
                 getAllLocks={async () => getAllLocks}
                 lockPositions={lockPositions}
                 handleUnlock={handleUnlock} />
               <Box
-                color='gray.500'
+                color='white'
                 fontWeight='semibold'
                 letterSpacing='wide'
                 fontSize='xl'
@@ -351,7 +350,6 @@ const Staking = observer((props) => {
               >
                 Total VOTE Tokens Balance:   {parseFloat(fromWei(VOTETokenBalance)).toFixed(0)} VOTE Token
               </Box>
-            </h5>
 
           </Box>
         }
@@ -373,8 +371,7 @@ const Staking = observer((props) => {
           </div>
         }
 
-      </div>
-    </div>
+      </Box>
   );
 });
 

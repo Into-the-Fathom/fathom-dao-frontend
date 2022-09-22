@@ -29,18 +29,14 @@ const ConnectButton = observer(({handleOpenModal}) =>{
   // console.log('Web3Store', Web3Store)
   return web3Store.account ? (
     <Box
-      mt={3}
       display="flex"
       alignItems="center"
+      justifyContent="right"
       background="gray.700"
       borderRadius="xl"
       py="0"
     >
-      <Box px="3">
-        <Text color="white" fontSize="md">
-          {web3Store.etherBalance.toFixed(3)} ETH
-        </Text>
-      </Box>
+
       <Button
         onClick={handleOpenModal}
         bg="gray.800"

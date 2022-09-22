@@ -1,16 +1,12 @@
 
 .app {
   position: relative;
-  padding: 20px 20px;
-  background: #fff;
-  border-radius: 10px;
-  
+  padding-left: 50px;
 }
 .app h1 {
   font-size: 2em;
   border-left: 5px solid dodgerblue;
   padding: 10px;
-  color: #000;
   letter-spacing: 5px;
   margin-bottom: 40px;
   font-weight: bold;

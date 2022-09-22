@@ -26,19 +26,33 @@ function Home() {
   const title = 'Ethereum dApps Next.js Boiletplate'
   return (
 
-    <div className={classes.app}>
-
-
+    <Box className={classes.app}>
       <ConnectButton handleOpenModal={onOpen} />
 
       <AccountModal isOpen={isOpen} onClose={onClose} />
       <Box as="main" p="4">
         {/* Add content here, remove div below  */}
-        <Box borderWidth="0" borderStyle="dashed" rounded="md" h="20" />
+        <Box borderWidth="0" borderStyle="dashed" rounded="md" h="5" />
       </Box>
-      <h1>
+      {/* .app h1 {
+  font-size: 2em;
+  border-left: 5px solid dodgerblue;
+  padding: 10px;
+  letter-spacing: 5px;
+  margin-bottom: 40px;
+  font-weight: bold;
+  padding-left: 10px;
+} */}
+      <Box
+      padding='10px'
+      paddingLeft='10px'
+      letterSpacing= '5px'
+      fontSize='2em'
+      marginBottom='40px'
+      fontWeight='bold'
+      >
         FATHOM Staking
-      </h1>
+      </Box>
       <div>
 
         <Staking
@@ -55,7 +69,7 @@ function Home() {
 
       
       </div>
-    </div>
+    </Box>
   )
 }
 

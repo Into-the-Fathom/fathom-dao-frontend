@@ -30,7 +30,7 @@ function Home() {
 
   const title = 'Ethereum dApps Next.js Boiletplate'
   return (
-        <div className={classes.app}>
+        <Box className={classes.app}>
           
           <Box as="main" p="4">
           {/* Add content here, remove div below  */}
@@ -60,7 +60,7 @@ function Home() {
               page={1}
             />
        </div>
-       </div>
+       </Box>
   )
 }
 

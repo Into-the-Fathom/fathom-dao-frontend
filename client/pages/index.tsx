@@ -18,10 +18,10 @@ import { IconButton } from '@chakra-ui/button'
 
 function Home() {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { colorMode, toggleColorMode } = useColorMode()
 
 
 
-  const title = 'Ethereum dApps Next.js Boiletplate'
   return (
     
         <Layout>
@@ -32,7 +32,9 @@ function Home() {
 
 
           </div>
-
+          <IconButton mt={4} aria-label="Toggle Mode" onClick={toggleColorMode}>
+          { colorMode === 'light' ? <MoonIcon/> : <SunIcon/> }
+        </IconButton>
           <ConnectButton handleOpenModal={onOpen} />
           <AccountModal isOpen={isOpen} onClose={onClose} />
         </Layout>

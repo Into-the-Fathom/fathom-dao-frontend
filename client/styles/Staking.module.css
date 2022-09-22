@@ -2,9 +2,9 @@
 
 .center {
   position: relative;
-  padding: 20px 20px;
-  background: #fff;
-  border-radius: 10px;
+  justify-content: center;
+  padding-left: 100px
+
 }
 .center h1 {
   font-size: 2em;
@@ -60,17 +60,38 @@
 }
 
 .center .slider {
-  -webkit-appearance: none;  /* Override default CSS styles */
-  appearance: none;
-  width: 50%; /* Full-width */
-  height: 25px; /* Specified height */
-  background: #d3d3d3; /* Grey background */
-  outline: none; /* Remove outline */
-  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  -webkit-appearance: none;
+  width: 50%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
   transition: opacity .2s;
 
 }
+
+.center .slider:hover {
+  opacity: 1;
+}
+
+.center .slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #00FFF9;
+  cursor: pointer;
+}
+
+.center .slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #00FFF9;
+  cursor: pointer;
+}
+
+
 .center .inputbox:last-child {
   margin-bottom: 0;
 }

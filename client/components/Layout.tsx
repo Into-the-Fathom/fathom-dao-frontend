@@ -12,7 +12,7 @@ export default function Layout({ children }: Props) {
             alignItems="center"
             justifyContent="center"
             h="100vh"
-            bg="white"
+
         >
             {children}
         </Flex>

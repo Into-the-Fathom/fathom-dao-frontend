@@ -6,6 +6,7 @@ import UnlockRows from './UnlockRows';
 import contractAddress from "../../src/contracts/contract-address.json"
 import { observer } from "mobx-react";
 import { useStores } from '../../store';
+import { Box } from '@chakra-ui/react';
 import {
     Table,
     Thead,
@@ -39,7 +40,7 @@ const Unstaking = observer(({lockPositions, getAllLocks, handleUnlock}) => {
 
 
     return (
-        <div>
+        <Box>
             <TableContainer key={seed}>
                 <Table>
                 <Thead>
@@ -71,7 +72,7 @@ const Unstaking = observer(({lockPositions, getAllLocks, handleUnlock}) => {
                     </Tbody>
                 </Table>
             </TableContainer>
-        </div>
+        </Box>
     )
 })
 

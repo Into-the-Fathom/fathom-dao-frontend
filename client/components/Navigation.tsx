@@ -99,7 +99,7 @@ const Navigation = ({children}) => {
           _dark={{ color: "white" }}
           fontWeight="semibold"
         >
-          DAO
+          Staking
         </Text>
       </Flex>
       <Flex

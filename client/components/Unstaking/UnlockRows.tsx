@@ -98,44 +98,55 @@ const UnlockRows = ({ lockPosition, handleUnlock, getAllLocks }) => {
   return (
     <Tr>
       <Td>
-        {lockPosition.VOTETokenBalance} FTHM
+      {lockPosition.MAINTokenBalance} FTHM
       </Td>
+
       <Td>
-        {lockPosition.MAINTokenBalance}
+        {lockPosition.VOTETokenBalance} VEFTHM
       </Td>
+
       {!isItUnlockable() ? <Td>
 
         <div className={classes.blank}>
-          <Grid w={100} templateColumns='repeat(4,1fr)' gap={1}>
+          <Grid w={100} templateColumns='repeat(1,1fr)' gap={1}>
 
             <GridItem
-              w='20'
+            
+            position='absolute'
+              w='55'
               h='10'
-              bg='gray.500'
+              bg='#00FFF9'
               fontWeight='semibold'
               fontSize='l'
-              textAlign='center'>{remainingTimeObject.days} <p>days</p></GridItem>
-            <GridItem
+              textColor="black"
+              textAlign='center'
+              verticalAlign='middle'
+              
+              >{remainingTimeObject.days} days {remainingTimeObject.h} hrs {remainingTimeObject.m} mins</GridItem>
+            {/* <GridItem
               w='20'
               h='10'
-              bg='gray.500'
+              bg='#00FFF9'
               fontWeight='semibold'
               fontSize='l'
+              textColor="black"
               textAlign='center'>{remainingTimeObject.h} <p>hrs</p></GridItem>
             <GridItem
               w='20'
               h='10'
-              bg='gray.500'
+              bg='#00FFF9'
               fontWeight='semibold'
               fontSize='l'
+              textColor="black"
               textAlign='center'>{remainingTimeObject.m} <p>mins</p></GridItem>
             <GridItem
               w='20'
               h='10'
-              bg='gray.500'
+              bg='#00FFF9'
               fontWeight='semibold'
               fontSize='l'
-              textAlign='center'>{remainingTimeObject.s} <p>secs</p></GridItem>
+              textColor="black"
+              textAlign='center'>{remainingTimeObject.s} <p>secs</p></GridItem> */}
 
           </Grid>
 
