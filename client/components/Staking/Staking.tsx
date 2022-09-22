@@ -18,23 +18,26 @@ import { UseAppStore } from '../../pages/AppStoreContext';
 import { isInteger, toInteger } from 'lodash';
 import { useEffect } from 'react';
 import Unstaking from '../Unstaking/Unstaking';
+import {
+  Box
+} from "@chakra-ui/react";
 
 const Staking = observer((props) => {
+  //  const handleAccountChanged = async () =>{
+  //     const injectedProvider = web3Store.provider;
+  //     const accounts = await injectedProvider.request({ method: 'eth_requestAccounts' });
+  //     web3Store.setAccount(accounts[0])
+  //     const balance = Pawait web3Store.web3.eth.getBalance(accounts[0])
+  //     console.log('balance', balance)
+  //     web3Store.setEtherBalance(parseInt(balance)/1e18)
+  //  }
 
+  //  const result = handleAccountChanged().catch(console.error)  
   useEffect(() => {
     if (web3Store.hasProvider) {
       web3Store.provider.on("accountsChanged", () => {
         console.log("......AccountsChanged")
-        //  const handleAccountChanged = async () =>{
-        //     const injectedProvider = web3Store.provider;
-        //     const accounts = await injectedProvider.request({ method: 'eth_requestAccounts' });
-        //     web3Store.setAccount(accounts[0])
-        //     const balance = await web3Store.web3.eth.getBalance(accounts[0])
-        //     console.log('balance', balance)
-        //     web3Store.setEtherBalance(parseInt(balance)/1e18)
-        //  }
 
-        //  const result = handleAccountChanged().catch(console.error)
         window.location.reload();
       })
     }
@@ -42,22 +45,12 @@ const Staking = observer((props) => {
   const { web3Store, govnStore } = useStores();
 
   const [lockPositions, setLockPositions] = useState([
-    {
-      lockId: null,
-      VOTETokenBalance: "",
-      MAINTokenBalance: "",
-      RemainingUnlockPeriod: ""
-    }
   ]);
-  const [addLockData, setLockData] = useState({
-    VOTETokenBalance: "",
-    MAINTokenBalance: "",
-    RemainingUnlockPeriod: ""
-  })
 
 
   const [displayAllLocks, setDisplayAllLocks] = useState(false)
 
+  const [seed, setSeed] = useState(0)
 
   const [VOTETokenBalance, setVOTETokenBalance] = useState("0")
   const [unlockPeriod, setUnlockPeriod] = useState<number | undefined>(1)
@@ -101,6 +94,18 @@ const Staking = observer((props) => {
     return unlockPeriod - await getTimeStamp()
   }
 
+  const handleUnlock = async (lockId: number) => {
+    await stakingTransactions(
+      "unlock",
+      [lockId],
+      { from: web3Store.account }
+    )
+    await getAllLocks();
+    console.log("...........Unlocking")
+    setSeed(Math.random());
+
+  }
+
   const _createLockPositionObject = async (_lockId, _VOTETokenBalance, _MAINTokenBalance, _RemainingUnlockPeriod) => {
     return {
       lockId: _lockId,
@@ -129,7 +134,7 @@ const Staking = observer((props) => {
     let lockingPeriod = unlockPeriod * WEEK;
     let endTime = 0
     ///For testing Only: Remove It
-    if(lockingPeriod > 0) {
+    if (lockingPeriod > 0) {
       endTime = parseInt((await getTimeStamp()).toString()) + lockingPeriod;
     }
 
@@ -144,7 +149,7 @@ const Staking = observer((props) => {
       { from: web3Store.account }
     )
 
-    await getVoteBalance()
+    await getAllLocks()
 
   }
 
@@ -174,13 +179,18 @@ const Staking = observer((props) => {
         amountOfveMAINTkn,
         end
       )
-      
+
       lockPositionsList.push(constructedLockPosition)
 
     }
-    console.log(lockPositionsList)
     setLockPositions(lockPositionsList)
-    setDisplayAllLocks(true)
+    await getVoteBalance()
+
+  }
+
+  const allLockPositionHandler = async () => {
+    await getAllLocks()
+    setDisplayAllLocks(!displayAllLocks)
   }
 
   const handleChange = (event) => {
@@ -191,7 +201,6 @@ const Staking = observer((props) => {
 
 
   const getVoteBalance = async () => {
-    setDisplayAllLocks(false)
     const beforeVOTETokenBalance = _voteTokenBalance
     let result = await veMainTokenCall(
       "balanceOf",
@@ -199,12 +208,10 @@ const Staking = observer((props) => {
     )
 
     var _voteTokenBalance = result.toString()
-
+    setVOTETokenBalance(_voteTokenBalance);
+    govnStore.setVoteTokeBalance(_voteTokenBalance)
     ///@notice: This is for frontend so that marginal vote release is not displayed
-    if (parseInt(_voteTokenBalance) - parseInt(beforeVOTETokenBalance) > 1) {
-      setVOTETokenBalance(_voteTokenBalance);
-      govnStore.setVoteTokeBalance(_voteTokenBalance)
-    }
+
   }
 
 
@@ -296,22 +303,14 @@ const Staking = observer((props) => {
         &nbsp; &nbsp;
         &nbsp; &nbsp;
 
-        <Button onClick={getVoteBalance}
-          size='md'
-          height='48px'
-          width='200px'
-          border='2px'
-          borderColor='green.500'
-        >
-          VOTE TOKEN BALANCE
-        </Button>
+
 
         &nbsp; &nbsp;
         &nbsp; &nbsp;
         &nbsp; &nbsp;
         &nbsp; &nbsp;
 
-        <Button onClick={getAllLocks}
+        <Button onClick={allLockPositionHandler}
           size='md'
           height='48px'
           width='200px'
@@ -323,21 +322,57 @@ const Staking = observer((props) => {
         <br />
         <br />
 
-        {VOTETokenBalance !== "0" && displayAllLocks != true ?
-          <h5>
-            VOTE Tokens Balance:{parseFloat(fromWei(VOTETokenBalance)).toFixed(2)} VOTE Token
-          </h5> : <div></div>
 
+
+        {displayAllLocks == true && lockPositions.length > 0 &&
+
+          <Box
+            color='gray.500'
+            fontWeight='semibold'
+            letterSpacing='wide'
+            fontSize='xl'
+            textTransform='uppercase'
+            m='5'
+            border='2px' borderColor='gray.200'
+          >
+            <h5>
+              <Unstaking
+                getAllLocks={async () => getAllLocks}
+                lockPositions={lockPositions}
+                handleUnlock={handleUnlock} />
+              <Box
+                color='gray.500'
+                fontWeight='semibold'
+                letterSpacing='wide'
+                fontSize='xl'
+                textTransform='uppercase'
+                m='5'
+                border='2px' borderColor='gray.200'
+              >
+                Total VOTE Tokens Balance:   {parseFloat(fromWei(VOTETokenBalance)).toFixed(0)} VOTE Token
+              </Box>
+            </h5>
+
+          </Box>
+        }
+        {
+          displayAllLocks == true && lockPositions.length == 0 &&
+          <div>
+            <Box
+              color='gray.500'
+              fontWeight='semibold'
+              letterSpacing='wide'
+              fontSize='xl'
+              textTransform='uppercase'
+              m='5'
+              border='2px' borderColor='gray.200'
+            >
+              No Lock Positions
+            </Box>
+
+          </div>
         }
 
-        {displayAllLocks == true ?
-          <h5>
-            <Unstaking 
-              getAllLocks={getAllLocks}
-              lockPositions={lockPositions} />
-          </h5> :
-          <div></div>
-        }
       </div>
     </div>
   );

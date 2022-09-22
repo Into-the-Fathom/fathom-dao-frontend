@@ -28,10 +28,7 @@ function Home() {
 
     <div className={classes.app}>
 
-      <Box as="main" p="4">
-        {/* Add content here, remove div below  */}
-        <Box borderWidth="0" borderStyle="dashed" rounded="md" h="10" />
-      </Box>
+
       <ConnectButton handleOpenModal={onOpen} />
 
       <AccountModal isOpen={isOpen} onClose={onClose} />

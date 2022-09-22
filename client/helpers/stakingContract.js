@@ -11,7 +11,7 @@ import {
 
   const initContractInstance = () => 
     {
-      console.log(Web3Store.web3)
+      console.log(Web3Store.wgetAllLockseb3)
       let web3 = Web3Store.web3;
       const address = contractAddress.Staking
       contractInstance = new web3.eth.Contract(StakingArtifact.abi, address);
@@ -37,7 +37,8 @@ import {
       };
 
 
-      export const makeCall = async method => {
+      export const makeCall =  async (methodName, args, options) => {
         initContractInstance();
-        return await _makeCall(contractInstance, method);
+        const method = contractInstance.methods[methodName](...args);
+        return await _makeCall(method, options);
       };

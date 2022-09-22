@@ -53,11 +53,12 @@ interface IStakingHandler {
 
     function claimAllRewards(uint256 lockId) external;
 
-    function batchClaimRewards(uint256[] calldata streamIds, uint256 lockId) external;
+    // function batchClaimRewards(uint256[] calldata streamIds, uint256 lockId) external;
 
     function withdraw(uint256 streamId) external;
 
     function withdrawAll() external;
 
     function withdrawPenalty(address penaltyReceiver) external;
+    function claimAllLockRewardsForStream(uint256 streamId) external;
 }

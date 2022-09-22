@@ -19,7 +19,7 @@ import {
   } from '@chakra-ui/react'
   
 
-const Unstaking = observer(({lockPositions, getAllLocks}) => {
+const Unstaking = observer(({lockPositions, getAllLocks, handleUnlock}) => {
     const [seed, setSeed] = useState(1);
        
     const {web3Store, govnStore} = useStores();
@@ -33,18 +33,14 @@ const Unstaking = observer(({lockPositions, getAllLocks}) => {
         return timestamp;
       }
     
-    const handleUnlock = async(lockId: number) => {
-        await stakingTransactions(
-            "unlock",
-            [lockId],
-            {from: web3Store.account}
-        )
-        
-    }
+    
+
+    
+
 
     return (
         <div>
-            <TableContainer>
+            <TableContainer key={seed}>
                 <Table>
                 <Thead>
                     <Tr>

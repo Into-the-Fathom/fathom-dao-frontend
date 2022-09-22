@@ -29,6 +29,7 @@ const _createWeightObject = (
 }
 
 async function main() {
+  
   const sumToApprove =ethers.utils.parseEther("2000")
   const oneMonth = 30 * 24 * 60 * 60;
     const oneYear = 31556926;
@@ -63,7 +64,10 @@ async function main() {
 
   // ethers is available in the global scope
   const [...accounts] = await ethers.getSigners();
+
   const SYSTEM_ACC = accounts[0]
+  const stream_rewarder_1 = accounts[2]
+  
   console.log(
     "Deploying the contracts with the account:",
     await SYSTEM_ACC.getAddress()
@@ -84,6 +88,12 @@ async function main() {
  // ethers.utils.parseUnits(1000000.toString(), "ether")
   const mainToken = await MainToken.deploy("Main Token", "FTHM", ethers.utils.parseEther("1000000"), accounts[1].address)
   await mainToken.deployed()
+  
+  const StreamRewardToken = await ethers.getContractFactory("ERC20Rewards1")
+  const sreamRewardToken = await StreamRewardToken.deploy("Stream Reward Token", "SRT", ethers.utils.parseEther("1000000"), stream_rewarder_1.address)
+  await sreamRewardToken.deployed()
+  console.log("...here1")
+
   const VeMainToken = await ethers.getContractFactory("VeMainToken");
   const veMainToken = await VeMainToken.deploy();
   await veMainToken.deployed();
@@ -92,11 +102,13 @@ async function main() {
   
   const mainTknTokenAddress =  mainToken.address;
   await vault.addSupportedToken(mainTknTokenAddress)
+  const streamRewardTokenAddress = sreamRewardToken.address
+  await vault.addSupportedToken(streamRewardTokenAddress)
   const veMainTokenAddress = veMainToken.address;
    const stream_owner = SYSTEM_ACC.address;
 
   const minter_role = await veMainToken.MINTER_ROLE();
-  
+  console.log("...here2")
   await veMainToken.grantRole(minter_role, staking.address, { from: SYSTEM_ACC.address });
   const startTime = await _getTimeStamp() + 20;
   const scheduleRewards = [
@@ -140,18 +152,59 @@ async function main() {
     lockingVoteWeight,
     maxNumberOfLocks
   )
+
+
   
   const StakingGetter = await ethers.getContractFactory("StakingGetters");
   const stakingGetter = await StakingGetter.deploy(staking.address);
   await stakingGetter.deployed();
 
+  await deployOneStream(staking, SYSTEM_ACC, sreamRewardToken, stream_rewarder_1, streamRewardTokenAddress)
+
   // We also save the contract's artifacts and address in the frontend directory
-  saveFrontendFiles(staking, mainToken, veMainToken,stakingGetter);
+  saveFrontendFiles(staking, mainToken, veMainToken,stakingGetter, sreamRewardToken);
 
   
 }
 
-function saveFrontendFiles(staking, mainToken, veMainToken,stakingGetter) {
+  const deployOneStream = async (staking, SYSTEM_ACC, streamRewardToken, stream_rewarder_1, streamRewardTokenAddress) => {
+          const id = 1;
+
+            const maxRewardProposalAmountForAStream = ethers.utils.parseEther("1000")
+            const minRewardProposalAmountForAStream = ethers.utils.parseEther("200")
+
+            const twoDays =2* 24 * 60 * 60
+            const startTime = await _getTimeStamp() + 20;
+            const scheduleRewards = [
+              ethers.utils.parseEther("1000"),
+              ethers.utils.parseEther("0"),
+            ]
+            const scheduleTimes = [
+                startTime,
+                startTime + twoDays
+            ]
+
+            const result = await staking.proposeStream(
+                stream_rewarder_1.address,
+                streamRewardTokenAddress,
+                maxRewardProposalAmountForAStream,
+                minRewardProposalAmountForAStream,
+                scheduleTimes,
+                scheduleRewards,
+                1,{from: SYSTEM_ACC.address}  
+
+              
+            )
+
+
+            const RewardProposalAmountForAStream = ethers.utils.parseEther("1000")
+            console.log(staking.address)
+            await streamRewardToken.connect(stream_rewarder_1).approve(staking.address, RewardProposalAmountForAStream)
+            console.log('..here123')
+            await staking.connect(stream_rewarder_1).createStream(1,RewardProposalAmountForAStream);
+}
+
+function saveFrontendFiles(staking, mainToken, veMainToken,stakingGetter, streamRewardToken) {
   const fs = require("fs");
   const contractsDir = path.join(__dirname, "..", "client", "src", "contracts");
 
@@ -161,17 +214,17 @@ function saveFrontendFiles(staking, mainToken, veMainToken,stakingGetter) {
 
   fs.writeFileSync(
     path.join(contractsDir, "contract-address.json"),
-    JSON.stringify({ Staking: staking.address, MainToken: mainToken.address, VeMainToken: veMainToken.address, StakingGetter: stakingGetter.address }, undefined, 2),
+    JSON.stringify({ Staking: staking.address, MainToken: mainToken.address, VeMainToken: veMainToken.address, StakingGetter: stakingGetter.address, StreamRewardToken: streamRewardToken.address}, undefined, 2),
   );
 
-  console.log({ Staking: staking.address, MainToken: mainToken.address, VeMainToken: veMainToken.address })
+  console.log({ Staking: staking.address, MainToken: mainToken.address, VeMainToken: veMainToken.address,StreamRewardToken: streamRewardToken.address })
 
 
   const StakingArtifact = artifacts.readArtifactSync("StakingPackage");
   const MainTokenArtifact = artifacts.readArtifactSync("ERC20MainToken");
   const VeMainTokenArtifact = artifacts.readArtifactSync("VeMainToken");
   const StakingGetterArtifact = artifacts.readArtifactSync("StakingGetters");
-
+  
 
 
   fs.writeFileSync(

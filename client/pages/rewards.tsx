@@ -1,4 +1,4 @@
-import Rewards from '../components/Staking/Rewards'
+import Rewards from '../components/Rewards/Rewards'
 import classes from '../styles/App.module.css'
 import Layout from '../components/Layout'
 

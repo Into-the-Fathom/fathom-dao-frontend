@@ -288,20 +288,26 @@ contract StakingHandlers is StakingStorage, IStakingHandler, IStakingSetter, Sta
         require(lockId <= locks[msg.sender].length, "invalid lockid");
         _before();
         // Claim all streams while skipping inactive streams.
-        _moveAllRewardsToPending(msg.sender, lockId);
+        _moveAllStreamRewardsToPending(msg.sender, lockId);
     }
 
-    /**
-     * @dev moves a set of stream Id rewards to pending of a locked position.
-     * Allows user to select stream ids to claim from UI.
-     * @param streamIds stream indexes
-     * @param lockId The position of lock to claim rewards
-     */
-    function batchClaimRewards(uint256[] calldata streamIds, uint256 lockId) external override pausable(1) {
-        require(lockId <= locks[msg.sender].length, "invalid lockid");
+    // /**
+    //  * @dev moves a set of stream Id rewards to pending of a locked position.
+    //  * Allows user to select stream ids to claim from UI.
+    //  * @param streamIds stream indexes
+    //  * @param lockId The position of lock to claim rewards
+    //  */
+    // function batchClaimRewards(uint256[] calldata streamIds, uint256 lockId) external override pausable(1) {
+    //     require(lockId <= locks[msg.sender].length, "invalid lockid");
+    //     _before();
+    //     _batchMoveRewardsToPending(msg.sender, streamIds, lockId);
+    // }
+
+    function claimAllLockRewardsForStream(uint256 streamId) external override pausable(1) {
         _before();
-        _batchMoveRewardsToPending(msg.sender, streamIds, lockId);
+        _moveAllLockPositionRewardsToPending(msg.sender, streamId);
     }
+
 
     /**
      * @dev withdraw amount in the pending pool. User should wait for

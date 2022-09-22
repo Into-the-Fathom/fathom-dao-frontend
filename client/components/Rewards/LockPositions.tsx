@@ -22,7 +22,7 @@ import {
 
 
 
-const UnlockRows = ({ lockPosition, handleUnlock, getAllLocks }) => {
+const LockPositionRows = ({ lockPosition }) => {
 
   const [remainingTime, setRemainingTime] = useState(0)
   const [remainingTimeObject, setRemainingTimeObject] = useState({
@@ -97,63 +97,17 @@ const UnlockRows = ({ lockPosition, handleUnlock, getAllLocks }) => {
 
   return (
     <Tr>
-      <Td>
-        {lockPosition.VOTETokenBalance} FTHM
-      </Td>
-      <Td>
+     
+     <Td>
         {lockPosition.MAINTokenBalance}
       </Td>
-      {!isItUnlockable() ? <Td>
-
-        <div className={classes.blank}>
-          <Grid w={100} templateColumns='repeat(4,1fr)' gap={1}>
-
-            <GridItem
-              w='20'
-              h='10'
-              bg='gray.500'
-              fontWeight='semibold'
-              fontSize='l'
-              textAlign='center'>{remainingTimeObject.days} <p>days</p></GridItem>
-            <GridItem
-              w='20'
-              h='10'
-              bg='gray.500'
-              fontWeight='semibold'
-              fontSize='l'
-              textAlign='center'>{remainingTimeObject.h} <p>hrs</p></GridItem>
-            <GridItem
-              w='20'
-              h='10'
-              bg='gray.500'
-              fontWeight='semibold'
-              fontSize='l'
-              textAlign='center'>{remainingTimeObject.m} <p>mins</p></GridItem>
-            <GridItem
-              w='20'
-              h='10'
-              bg='gray.500'
-              fontWeight='semibold'
-              fontSize='l'
-              textAlign='center'>{remainingTimeObject.s} <p>secs</p></GridItem>
-
-          </Grid>
-
-
-        </div>
-      </Td> :
-        <Td>Locking Period Over</Td>
-      }
-
 
       <Td>
-        <Button type="button"
-          disabled={!isItUnlockable()}
-          onClick={() => handleUnlock(lockPosition.lockId)}
-        > Unlock </Button>
+        {lockPosition.AMOUNTOfRewardsAvailable}
       </Td>
+
     </Tr>
   )
 }
 
-export default UnlockRows
+export default LockPositionRows

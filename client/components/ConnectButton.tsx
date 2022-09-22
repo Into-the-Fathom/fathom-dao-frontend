@@ -1,5 +1,5 @@
 import { Button, Box, Text, SimpleGrid } from "@chakra-ui/react";
-import { handleInjectedProvider, handleWalletConnect } from "../lib";
+import { handleInjectedProvider } from "../lib";
 import { useContext, useState } from 'react';
 import BeatLoader from 'react-spinners/BeatLoader'
 import { useStores } from '../store';
@@ -57,11 +57,7 @@ const ConnectButton = observer(({handleOpenModal}) =>{
         height="38px"
       >
         <Text color="white" fontSize="md" fontWeight="medium" mr="2">
-          {web3Store.account &&
-            `${web3Store.account.slice(0, 6)}...${web3Store.account.slice(
-              web3Store.account.length - 4,
-              web3Store.account.length
-            )}`}
+          {web3Store.account}
         </Text>
       </Button>
     </Box>

@@ -50,23 +50,34 @@ contract RewardsInternals is StakingStorage, IStakingEvents {
      * @param account is the staker address
      * @param lockId the lock id of the lock position to move rewards
      */
-    function _moveAllRewardsToPending(address account, uint256 lockId) internal {
+    function _moveAllStreamRewardsToPending(address account, uint256 lockId) internal {
         uint256 streamsLength = streams.length;
         for (uint256 i = 1; i < streamsLength; i++) {
             if (streams[i].status == StreamStatus.ACTIVE) _moveRewardsToPending(account, i, lockId);
         }
     }
 
-    function _batchMoveRewardsToPending(
-        address account,
-        uint256[] calldata streamIds,
-        uint256 lockId
-    ) internal {
-        for (uint256 i = 0; i < streamIds.length; i++) {
-            if (streams[streamIds[i]].status == StreamStatus.ACTIVE)
-                _moveRewardsToPending(account, streamIds[i], lockId);
-        }
+    function _moveAllLockPositionRewardsToPending(address account, uint256 streamId) internal {
+        require(streamId != 0, "REWARDS_COMPOUND");
+        require(streams[streamId].status == StreamStatus.ACTIVE, "inactive or proposed");
+        LockedBalance[] memory locksOfAccount = locks[account];
+        uint256 locksLength = locksOfAccount.length;
+        require(locksLength > 0, "no lock position");
+        for (uint256 i = 1; i <= locksLength; i++){
+            _moveRewardsToPending(account, streamId, i);
+        } 
     }
+
+    // function _batchMoveRewardsToPending(
+    //     address account,
+    //     uint256[] calldata streamIds,
+    //     uint256 lockId
+    // ) internal {
+    //     for (uint256 i = 0; i < streamIds.length; i++) {
+    //         if (streams[streamIds[i]].status == StreamStatus.ACTIVE)
+    //             _moveRewardsToPending(account, streamIds[i], lockId);
+    //     }
+    // }
 
     /**
      * @dev This is always called before locking, unlocking, claiming rewards
