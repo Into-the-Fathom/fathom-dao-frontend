@@ -8,9 +8,11 @@ import { Web3ReactProvider } from '@web3-react/core'
 import Web3 from 'web3'
 import { useEffect } from 'react'
 import { useStores } from '../store'
-import { handleInjectedProvider } from '../lib'
+import { ColorModeScript } from '@chakra-ui/react'
+import { useState } from 'react'
 export default function App({ Component, pageProps }: AppProps) {
     const { web3Store } = useStores();
+
     useEffect(() => {
         console.log(web3Store.hasProvider)
         if(web3Store.hasProvider){
@@ -31,12 +33,12 @@ export default function App({ Component, pageProps }: AppProps) {
         }
       });
     
-    function getLibrary(provider: any, connector: any) {
-        return new Web3(provider)
-      }
+    
     return (
         //<Web3ReactProvider getLibrary={getLibrary}>
+            
             <ChakraProvider>
+                
                 {/* <MetaMaskProvider> */}
                 <Navigation>    
 
@@ -45,6 +47,5 @@ export default function App({ Component, pageProps }: AppProps) {
                 </Navigation>
                 {/* </MetaMaskProvider> */}
             </ChakraProvider>
-           // </Web3ReactProvider>
     )
 }

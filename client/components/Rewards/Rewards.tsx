@@ -38,6 +38,7 @@ const Reward = (props) => {
   const [inputValue, setInputValue] = useState('');
   const [lockPositions, setLockPositions] = useState([
   ]);
+  const [displayLockPositions, setDisplayLockPositions] = useState(false)
 
   const _convertToEtherBalance = async (balance) => {
     return parseFloat(fromWei(balance)).toFixed(5)
@@ -49,6 +50,11 @@ const Reward = (props) => {
       MAINTokenBalance: await _convertToEtherBalance(_MAINTokenBalance),
       AMOUNTOfRewardsAvailable: await _convertToEtherBalance(_AMOUNTOfRewardsAvailable)
     }
+  }
+
+  const viewLockPositionHandler = async() => {
+    setDisplayLockPositions(true)
+    await getAllLocks()
   }
 
   const getAllLocks = async () => {
@@ -118,7 +124,14 @@ const Reward = (props) => {
 
     <div className={classes.center}>
       <div>
-        <TableContainer key={seed}>
+
+     { 
+     lockPositions.length == 0 && <Button type="button"
+          onClick={viewLockPositionHandler}
+        > View Lock Position </Button>
+
+      }
+        {displayLockPositions == true && lockPositions.length > 0 && <TableContainer key={seed}>
           <Table>
             <Thead>
               <Tr>
@@ -145,10 +158,9 @@ const Reward = (props) => {
             </Tbody>
           </Table>
         </TableContainer>
+}
 
-        <Button type="button"
-          onClick={getAllLocks}
-        > View Lock Position </Button>
+
 
         <Button type="button"
           onClick={handleClaimRewards}
