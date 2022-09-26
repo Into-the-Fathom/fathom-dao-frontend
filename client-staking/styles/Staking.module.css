@@ -1,0 +1,215 @@
+@import url("https://fonts.googleapis.com/css2?family=Sansita+Swashed:wght@600&display=swap");
+
+.center {
+  position: relative;
+  justify-content: center;
+  padding-left: 100px
+
+}
+.center h1 {
+  font-size: 2em;
+  border-left: 5px solid dodgerblue;
+  padding: 10px;
+  color: #000;
+  letter-spacing: 5px;
+  margin-bottom: 60px;
+  font-weight: bold;
+  padding-left: 10px;
+  
+}
+
+.center h4 {
+  font-size: 1em;
+  padding: 20px;
+  color: #000;
+  letter-spacing: 5px;
+  font-weight: bold;
+  border-left: 2px solid green;
+}
+
+.center h5 {
+  font-size: 1em;
+  padding: 20px;
+  color: #000;
+  letter-spacing: 5px;
+  font-weight: bold;
+  border-left: 2px solid green;
+}
+
+.center .inputbox {
+  position: relative;
+  width: 300px;
+  height: 40px;
+  margin-bottom: 1px;
+  border: 2px solid #000;
+  background: gray;
+}
+.center .inputbox input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border: 2px solid #000;
+  outline: none;
+  background: gray;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 1.2em;
+}
+.center .slidecontainer {
+  width: 100%; /* Width of the outside container */
+}
+
+.center .slider {
+  -webkit-appearance: none;
+  width: 50%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+
+}
+
+.center .slider:hover {
+  opacity: 1;
+}
+
+.center .slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #00FFF9;
+  cursor: pointer;
+}
+
+.center .slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #00FFF9;
+  cursor: pointer;
+}
+
+
+.center .inputbox:last-child {
+  margin-bottom: 0;
+}
+.center .inputbox span {
+  position: absolute;
+  top: 14px;
+  left: 20px;
+  font-size: 1em;
+  transition: 0.6s;
+  font-family: sans-serif;
+}
+.center .inputbox input:focus ~ span,
+.center .inputbox input:valid ~ span {
+  trans
+  : translateX(-13px) translateY(-35px);
+  font-size: 1em;
+}
+.center .inputbox [type="button"] {
+  width: 50%;
+  background: dodgerblue;
+  color: #fff;
+  border: #fff;
+}
+.center .inputbox:hover [type="button"] {
+  background: linear-gradient(45deg, greenyellow, dodgerblue);
+}
+
+
+
+
+.stakeButton {
+  background-color: rgba(255, 255, 255, 0);
+  color: green;
+  font-size: 1em;
+  border: green solid 0.05em;
+  border-radius: 0.5em;
+  height: 3em;
+  width: 15em;
+  margin-top: 50px;
+  cursor: pointer;
+  margin-bottom:50px;;
+}
+
+.stakeButton:hover {
+  background-color:gray;
+}
+
+.unstakeButton {
+  background-color: rgba(255, 255, 255, 0);
+  color: green;
+  font-size: 1em;
+  border: green solid 0.05em;
+  border-radius: 0.5em;
+  height: 3em;
+  width: 15em;
+  margin-top: 50px;;
+  cursor: pointer;
+  margin-bottom:50px;;
+}
+
+.stakeButton:focus {
+  outline: none;
+ }
+
+.unstakeButton:hover {
+  background-color: gray;
+}
+
+.unstakeButton:focus {
+ outline: none;
+}
+
+.stakeIcon {
+  height: 2em;
+  position: relative;
+  top: 0.1em;
+  right: 1em;
+}
+
+.stakeButton p {
+  display: inline;
+  position: relative;
+  bottom: 0.5em;
+}
+
+.unstakeButton p {
+  display: inline;
+  position: relative;
+  bottom: 0.5em;
+}
+
+
+
+
+
+
+/* <label><b> Enter Lock Position </b></label>
+<input
+  className={classes.input}
+  type="number"
+  min="0"
+  step="1"
+  id="StakeValue"
+  onChange={inputChangeHandler}
+  value={inputValue}
+></input>
+
+
+<br/>
+
+<label><b> Unlock Period </b></label>
+<input
+  className={classes.input}
+  type="date"
+  min="0"
+  step="1"
+  id="UnlockPeriod"
+  onChange={inputChangeHandler}
+  value={inputValue}
+></input> */

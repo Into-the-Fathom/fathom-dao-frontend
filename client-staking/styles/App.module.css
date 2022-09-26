@@ -1,0 +1,17 @@
+
+.app {
+  position: relative;
+
+}
+.app h1 {
+  font-size: 2em;
+  border-left: 5px solid dodgerblue;
+  padding: 10px;
+  letter-spacing: 5px;
+  margin-bottom: 40px;
+  font-weight: bold;
+  padding-left: 20px;
+}
+
+
+

@@ -5,6 +5,10 @@ node_modules
 .pnp
 .pnp.js
 
+artifacts
+.vscode
+cache
+
 # testing
 coverage
 apps/bitlego-automation-tests/cypress/downloads
@@ -27,6 +31,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# dotenv environment variables file
+.env
+
 # local env files
 .env.local
 .env.development.local
@@ -40,3 +47,10 @@ yarn-error.log*
 .idea
 packages/bitlego-abi/source
 
+# npm package lock
+package-lock.json
+
+# build folder
+build/
+privateKey
+deployHelper
