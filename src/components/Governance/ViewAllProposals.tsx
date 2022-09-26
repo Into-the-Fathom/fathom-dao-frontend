@@ -9,15 +9,10 @@ import { useStores } from '../../stores';
 import useMetaMask from '../../hooks/metamask';
 import { LogLevel, useLogger } from '../../helpers/Logger';
 import IProposal from "../../stores/interfaces/IProposal"
-import BigNumber from 'bignumber.js';
-import { Constants } from '../../helpers/Constants';
-import { Link, Button, Paper, Typography } from '@mui/material';
+import { Link, Paper, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { observer } from 'mobx-react';
-import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Container from '@mui/material/Container';
+import {useNavigate } from 'react-router-dom';
 import Grid from '@mui/material/Grid';
 
 

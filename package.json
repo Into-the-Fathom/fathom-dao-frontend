@@ -2,7 +2,8 @@
   "name": "fathom",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
+  "homepage": ".",
+  "dependencies": { 
     "@chakra-ui/react": "^2.3.4",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",

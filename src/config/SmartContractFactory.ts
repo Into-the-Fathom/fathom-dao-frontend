@@ -60,14 +60,22 @@ export class SmartContractFactory{
         address:'0x8598b178d5e6C40Cb5800De5522184092469b40C'
     }
 
+    // // Ganache
     // public static FathomGovernor  = {
     //     abi:Governor.abi as AbiItem [],
     //     address:'0xc36b26cf999F9f4A085Ce5bD1A541a4B81a70753'
     // }
 
+    // // Goerli
+    // public static FathomGovernor  = {
+    //     abi:Governor.abi as AbiItem [],
+    //     address:'0x6fdf50884a7a56e45d2fc6093b007d2b44370404'
+    // }
+
+    // Apothem
     public static FathomGovernor  = {
         abi:Governor.abi as AbiItem [],
-        address:'0x6fdf50884a7a56e45d2fc6093b007d2b44370404'
+        address:'0x62f3d571A7DAcC00C047e58fE500ee99A98E3f63'
     }
 
 }

@@ -3,7 +3,7 @@ import React from 'react';
 // import { WinstonProvider } from 'winston-react';
 import 'fontsource-roboto'
 import Dashboard from './components/Dashboard/Dashboard';
-import { BrowserRouter as Router} from "react-router-dom";
+import { HashRouter as Router} from "react-router-dom";
 
 // const logger = winston.createLogger({
 //   // ...
