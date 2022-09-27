@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import classes from "../../styles/Staking.module.css";
 import { Button } from '@chakra-ui/react';
-import { toWei, fromWei } from '../../services/base';
+import { toWei, fromWei, toBN } from '../../services/base';
 import { sendTransaction as stakingTransactions } from "../../services/stakingContract.js";
 import { makeCall as stakingGetterCall } from '../../services/stakingGetter';
 import { sendTransaction as mainTokenTransactions } from '../../services/mainToken.js'
 import { makeCall as veMainTokenCall } from '../../services/veMainToken.js';
-
+import { makeCall as stakingContractCall } from '../../services/stakingContract.js';
 import   { Staking as stakingContractAddress }  from "../../src/contracts/contract-address.js"
 import { observer } from "mobx-react";
 //import { Web3Store } from '../../store/web3Store';
@@ -16,16 +16,27 @@ import Unstaking from '../Unstaking/Unstaking';
 import { useEffect } from 'react';
 import { getNetworkId } from '../../services/base';
 import { useCallback } from 'react';
+import StakeModal from '../Modals/StakeModal'
+import { makeCall as mainTokenCall } from '../../services/mainToken.js';
+
+
+
 import {
-  Box
+  Box,
+  HStack,
+  Grid,
+  GridItem
 } from "@chakra-ui/react";
 declare var window: any
 
 const Staking = observer(() => {
-  const { web3Store, govnStore } = useStores();
+  const { web3Store, govnStore, stakingStore } = useStores();
 
   const [lockPositions, setLockPositions] = useState([
   ]);
+
+  const [apr, setAPR] = useState("N/A")
+  const [totalStakedPosition,setTotalStakedPosition] = useState("0")
 
 
   useEffect(() => {
@@ -52,10 +63,15 @@ const Staking = observer(() => {
     await getAllLocks()
   }, [])
 
+  const _getAPR = useCallback(async () => {
+    await getAPR()
+  }, [])
+
 
   useEffect(() => {
     if (web3Store.hasProvider) {
       _getAllLocks()
+      _getAPR()
      }
   },[])
 
@@ -77,8 +93,38 @@ const Staking = observer(() => {
     return timestamp;
   }
 
-  const _convertToEtherBalance = async (balance) => {
+  const _convertToEtherBalance =  (balance) => {
     return parseFloat(fromWei(balance)).toFixed(0)
+  }
+
+  const getOneDayRewardForStream1 = () => {
+    const now = Math.floor(Date.now() / 1000)
+    const oneDay = 86400
+    const oneYear = 365 * 24 * 60 * 60
+    const streamStart = 2000
+    const streamEnd = 0
+  
+    const oneDayReward = 20000 * oneDay / oneYear;
+    return oneDayReward
+  }
+  
+  const getAPR = async () => {
+    if (web3Store.hasProvider){
+    const oneYear = 365 * 24 * 60 * 60
+    const oneDayReward = getOneDayRewardForStream1()
+    const oneYearStreamRewardValue = oneDayReward * 365;
+    const totalStaked =  await stakingContractCall(
+      "totalAmountOfStakedMAINTkn",
+      []
+    );
+    
+    let totalAPR = oneYearStreamRewardValue * 100 / fromWei(totalStaked,"ether");
+    const APR = parseInt(totalAPR.toString())
+    stakingStore.setAPR(APR)
+      
+    }
+
+    
   }
 
 
@@ -95,11 +141,17 @@ const Staking = observer(() => {
 
   }
 
-  const _createLockPositionObject = async (_lockId, _VOTETokenBalance, _MAINTokenBalance, _RemainingUnlockPeriod) => {
+  const _createLockPositionObject = async (
+      _lockId, 
+      _VOTETokenBalance, 
+      _MAINTokenBalance,
+      _RemainingUnlockPeriod,
+      _FTHMRewards) => {
     return {
       lockId: _lockId,
       VOTETokenBalance: await _convertToEtherBalance(_VOTETokenBalance),
       MAINTokenBalance: await _convertToEtherBalance(_MAINTokenBalance),
+      FTHMRewards: await _convertToEtherBalance(_FTHMRewards),
       RemainingUnlockPeriod: _RemainingUnlockPeriod
     }
   }
@@ -126,7 +178,7 @@ const Staking = observer(() => {
     const day = 24 * 60 * 60
     console.log("timestamp: ", (await getTimeStamp()).toString())
     let lockingPeriod = unlockPeriod * day;
-    let endTime =parseInt((await getTimeStamp()).toString()) + 60*60;
+    let endTime =parseInt((await getTimeStamp()).toString()) + 10*60;
     
     ///For testing Only: Remove It
     if (lockingPeriod > 0) {
@@ -150,10 +202,15 @@ const Staking = observer(() => {
 
   }
 
-
+  const loadAll = async () => {
+   // await getAllLocks()
+    await getAPR()
+    await getWalletBalance()
+    await getVoteBalance()
+  }
 
   const getAllLocks = async () => {
-
+    let totalStakedPosition = toBN("0")
 
     let result = await stakingGetterCall(
       "getLocksLength",
@@ -171,25 +228,37 @@ const Staking = observer(() => {
           "getLock",
           [web3Store.account, i + 1]
         )
+
+        let amountOfFTHMAvailable = await stakingContractCall(
+          "getStreamClaimableAmountPerLock",
+          [0, web3Store.account, i + 1]
+        )
+        
       constructedLockPosition = await _createLockPositionObject(
         i + 1,
         amountOfveMAINTkn,
         amountOfMAINTkn,
-        end
+        
+        end,
+        amountOfFTHMAvailable,
       )
 
       lockPositionsList.push(constructedLockPosition)
+      totalStakedPosition = totalStakedPosition.add(toBN(amountOfMAINTkn))
 
     }
+    const totalStakedPositionToEther = _convertToEtherBalance(totalStakedPosition)
+    setTotalStakedPosition(totalStakedPositionToEther)
     setDisplayAllLocks(true)
     setLockPositions(lockPositionsList)
-    await getVoteBalance()
-
+    stakingStore.setTotalStakedBalance(totalStakedPositionToEther)
   }
 
   const allLockPositionHandler = async () => {
+  
     await getAllLocks()
-    setDisplayAllLocks(!displayAllLocks)
+    await loadAll()
+    
   }
 
   const handleChange = (event) => {
@@ -197,7 +266,13 @@ const Staking = observer(() => {
   }
 
 
-
+  const getWalletBalance = async () => {
+    const walletBalance = await mainTokenCall(
+      "balanceOf",
+      [web3Store.account]
+    )
+      stakingStore.setTotalWalletBalance(_convertToEtherBalance(walletBalance).toString())
+  }
 
   const getVoteBalance = async () => {
     const beforeVOTETokenBalance = _voteTokenBalance
@@ -208,7 +283,9 @@ const Staking = observer(() => {
 
     var _voteTokenBalance = result.toString()
     setVOTETokenBalance(_voteTokenBalance);
-    govnStore.setVoteTokeBalance(_voteTokenBalance)
+    if(parseInt(_voteTokenBalance) > 0){
+      govnStore.setVoteTokeBalance(_convertToEtherBalance(_voteTokenBalance))
+    }
     ///@notice: This is for frontend so that marginal vote release is not displayed
 
   }
@@ -218,8 +295,8 @@ const Staking = observer(() => {
   return (
 
       <Box className={classes.center}>
-        
-        <Box mt='50px'>
+      <HStack spacing='10px'>
+        <Box mt='50px' width="75%">
 
           <label htmlFor="StakeValue"><b> Enter Lock Position </b></label>
           &nbsp; &nbsp;
@@ -306,7 +383,9 @@ const Staking = observer(() => {
         &nbsp; &nbsp;
         &nbsp; &nbsp;
         &nbsp; &nbsp;
-
+      
+      { 
+      displayAllLocks == false &&
         <Button onClick={allLockPositionHandler}
           size='md'
           height='48px'
@@ -319,13 +398,22 @@ const Staking = observer(() => {
         >
           All Lock Positions
         </Button>
+      }
         </Box>
+
+         <StakeModal apr={apr} totalStakedPosition={totalStakedPosition}></StakeModal>
+
+        </HStack>
+    
         <br />
         <br />
+        
 
 
 
-        {displayAllLocks == true && lockPositions.length > 0 &&
+        {
+        displayAllLocks == true && lockPositions.length > 0 &&
+       
 
           <Box
             color='gray.500'
@@ -333,28 +421,22 @@ const Staking = observer(() => {
             letterSpacing='wide'
             fontSize='xl'
             textTransform='uppercase'
-            m='5'
+            mr="5"
             border='2px' borderColor='gray.200'
+            width="65%"
           >
            
               <Unstaking
                 getAllLocks={async () => getAllLocks}
                 lockPositions={lockPositions}
                 handleUnlock={handleUnlock} />
-              <Box
-                color='white'
-                fontWeight='semibold'
-                letterSpacing='wide'
-                fontSize='xl'
-                textTransform='uppercase'
-                m='5'
-                border='2px' borderColor='gray.200'
-              >
-                Total VOTE Tokens Balance:   {parseFloat(fromWei(VOTETokenBalance)).toFixed(0)} VOTE Token
-              </Box>
+          
 
           </Box>
+
+        
         }
+          
         {
           displayAllLocks == true && lockPositions.length == 0 &&
           <div>

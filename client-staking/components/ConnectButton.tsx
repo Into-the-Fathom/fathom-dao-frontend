@@ -4,6 +4,8 @@ import { useContext, useState } from 'react';
 import BeatLoader from 'react-spinners/BeatLoader'
 import { useStores } from '../store';
 import { observer} from 'mobx-react'
+import { loadAll } from '../services/getAllStakeModal'
+
 type Props = {
   handleOpenModal: any
 };
@@ -17,6 +19,7 @@ const ConnectButton = observer(({handleOpenModal, toDisplay}) =>{
     setLoading(true)
     try {
       const { account, web3 } =  await handleInjectedProvider()
+      await loadAll()
       const balance = await web3.eth.getBalance(account)
       console.log('balance', balance)
       web3Store.setEtherBalance(parseInt(balance)/1e18)

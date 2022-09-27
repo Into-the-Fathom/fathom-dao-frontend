@@ -225,3 +225,8 @@ export const getGasPrice = async () => {
   const web3 = Web3Store.web3;
   return await web3.eth.getGasPrice();
 };
+
+export const toBN = number => {
+  const web3 = Web3Store.web3;
+  return web3.utils.toBN(number)
+};

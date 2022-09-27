@@ -4,6 +4,8 @@ import { fromWei } from "../../services/base";
 import classes from '../../styles/UnlockRows.module.css'
 import { useStores } from "../../store";
 import { useState } from "react";
+import { makeCall as stakingMakeCall } from "../../services/stakingContract";
+
 import {
   Tr,
   Td,
@@ -84,6 +86,67 @@ const UnlockRows = ({ lockPosition, handleUnlock, getAllLocks }) => {
     const isItUnlockable = remainingTime == 0 || remainingTime < 0;
     return isItUnlockable
   }
+//   const getOneDayReward = (streamId) => {
+//       const streamSchedule = await staking.getStreamSchedule(streamId)
+//       const now = Math.floor(Date.now() / 1000)
+//       const oneDay = 86400
+//       const streamStart = schedule[0][0].toNumber()
+//       const streamEnd = schedule[0][schedule[0].length - 1].toNumber()
+//       if (now <= streamStart) return ethers.BigNumber.from(0) // didn't start
+//       if (now >= streamEnd - oneDay) return ethers.BigNumber.from(0) // ended
+//       const currentIndex = schedule[0].findIndex(indexTime => now < indexTime) - 1
+//       const indexDuration = schedule[0][currentIndex + 1] - schedule[0][currentIndex]
+//       const indexRewards = schedule[1][currentIndex].sub(schedule[1][currentIndex + 1])
+//       const oneDayReward = indexRewards.mul(oneDay).div(indexDuration)
+//       return oneDayReward
+//   }
+//   ```
+  
+//   APR calculation:
+//   ```js
+//       const oneDayReward = await getOneDayReward(streamId)
+//       const totalStaked = await staking.getTotalAmountOfStakedAurora()
+  
+//       // streamTokenPrice can be queried from coingecko.
+//       const totalStakedValue = Number(ethers.utils.formatUnits(totalStaked, 18)) * streamTokenPrice
+//       const oneYearStreamRewardValue = Number(ethers.utils.formatUnits(oneDayReward, 18)) * 365 * streamTokenPrice
+//       const streamAPR = oneYearStreamRewardValue * 100 / totalStakedValue
+//       const totalAPR = allStreamsCumulatedOneYearRewardValue * 100 / totalStakedValue
+//  
+
+const getOneDayRewardForStream1 = () => {
+  const now = Math.floor(Date.now() / 1000)
+  const oneDay = 86400
+  const oneYear = 365 * 24 * 60 * 60
+  const streamStart = 2000
+  const streamEnd = 0
+
+  const oneDayReward = 2000 * oneDay / oneYear;
+  return oneDayReward
+}
+
+const getAPR = async () => {
+  const oneYear = 365 * 24 * 60 * 60
+  const oneDayReward = getOneDayRewardForStream1()
+  const oneYearStreamRewardValue = oneDayReward * 365;
+  const totalStaked =  await stakingMakeCall(
+    "totalAmountOfStakedMAINTkn",
+    [web3Store.account]
+  );
+  
+  const totalAPR = oneYearStreamRewardValue * 100 / totalStaked;
+  
+  
+  console.log(totalAPR)
+}
+
+const getTotalStake = () => {
+
+}
+
+const getTotalBalance = () => {
+
+}
 
 
   return (
@@ -111,7 +174,7 @@ const UnlockRows = ({ lockPosition, handleUnlock, getAllLocks }) => {
                 fontSize='l'
                 textColor="black"
                 textAlign='center'
-                verticalAlign='middle'>{remainingTimeObject.days} DAYS {remainingTimeObject.h} hrs {remainingTimeObject.m} mins
+                verticalAlign='middle'>{remainingTimeObject.days} DAYS {remainingTimeObject.h} hrs {remainingTimeObject.m} mins {remainingTimeObject.s} secs
               </Box>
 
         </div>

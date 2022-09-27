@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 
 import { Web3Store } from '../store/web3Store'
-
+import { loadAll } from '../services/getAllStakeModal'
 
 declare var window: any
 async function detectEthereumProvider() {
@@ -45,7 +45,6 @@ export async function handleInjectedProvider() {
   
   const accounts = await provider.request({ method: 'eth_requestAccounts' });
   
- 
   return dispatchStates(accounts[0], provider, web3, chainId)
 }
 

@@ -3,12 +3,14 @@ import classes from "../../styles/Staking.module.css";
 import { makeCall as stakingGetterCall } from '../../services/stakingGetter';
 import { useStores } from '../../store';
 import { isInteger, toInteger } from 'lodash';
-import { toWei, fromWei } from '../../services/base';
+import { toWei, fromWei, toBN } from '../../services/base';
 import { useCallback } from 'react';
 import LockPositionRows from './LockPositions';
 import { makeCall as stakingContractCall } from '../../services/stakingContract';
 import { sendTransaction as stakingSendTransaction } from '../../services/stakingContract';
 import { observer } from "mobx-react";
+import StakeModal from '../Modals/StakeModal';
+
 import {
   Table,
   Thead,
@@ -17,7 +19,8 @@ import {
   Th,
   TableContainer,
   Button,
-  Box
+  Box,
+  HStack
 } from '@chakra-ui/react'
 declare var window: any
 const Reward = observer(() => {
@@ -29,6 +32,7 @@ const Reward = observer(() => {
     };
     const handleChainChanged =  () => {
       window.location.reload();
+      
     };
 
     if(window.ethereum){
@@ -60,11 +64,13 @@ const Reward = observer(() => {
 
   const { web3Store, govnStore } = useStores();
   const [inputValue, setInputValue] = useState('');
-  const [lockPositions, setLockPositions] = useState([
-  ]);
-  const [displayLockPositions, setDisplayLockPositions] = useState(false)
+  const [lockPositions, setLockPositions] = useState([]);
+  const [totalStakedPosition,setTotalStakedPosition] = useState("0")
 
-  const _convertToEtherBalance = async (balance) => {
+
+  const [displayLockPositions, setDisplayLockPositions] = useState(false)
+  const [apr, setAPR] = useState("N/A")
+  const _convertToEtherBalance =  (balance) => {
     return parseFloat(fromWei(balance)).toFixed(5)
   }
 
@@ -79,31 +85,44 @@ const Reward = observer(() => {
   const viewLockPositionHandler = async() => {
     setDisplayLockPositions(true)
     await getAllLocks()
+  
   }
 
   const isConnected = () => {
       return web3Store.hasProvider
   }
-
-  const getStreamData =async (streamId) => {
-
-    
-    const { 0: streamOwner, 
-            1: rewardToken, 
-            2: rewardDepositAmount, 
-            3: rewardClaimedAmount, 
-            4: maxDepositAmount, 
-            5: rps, 
-            6: tau, 
-            7: status}
-     = await stakingContractCall(
-      "getStream",
-      [streamId])
-
-    
+  const getOneDayRewardForStream0 = () => {
+    const now = Math.floor(Date.now() / 1000)
+    const oneDay = 86400
+    const oneYear = 365 * 24 * 60 * 60
+    const streamStart = 2000
+    const streamEnd = 0
+  
+    const oneDayReward = 20000 * oneDay / oneYear;
+    return oneDayReward
   }
-  const getAllLocks = async () => {
+  
+  const getAPR = async () => {
+    if (web3Store.hasProvider){
+    const oneYear = 365 * 24 * 60 * 60
+    const oneDayReward = getOneDayRewardForStream0()
+    const oneYearStreamRewardValue = oneDayReward * 365;
+    const totalStaked =  await stakingContractCall(
+      "totalAmountOfStakedMAINTkn",
+      []
+    );
+    
+    let totalAPR = oneYearStreamRewardValue * 100 / fromWei(totalStaked,"ether");
+    const APR = parseInt(totalAPR.toString())
+    if(APR > 0){
+      setAPR(APR.toString());
+      }
+    }
+  }
 
+
+  const getAllLocks = async () => {
+    if(web3Store.hasProvider){
 
     let result = await stakingGetterCall(
       "getLocksLength",
@@ -114,8 +133,8 @@ const Reward = observer(() => {
     let lockPositionsList = []
     let retrievedLockPosition: any;
     let constructedLockPosition: any
+    let totalStakedPosition = toBN("0")
     for (let i = 0; i < toInteger(result); i++) {
-
       const { 0: amountOfMAINTkn, 1: amountOfveMAINTkn, 2: mainTknShares, 3: positionStreamShares, 4: end, 5: owner } =
         await stakingGetterCall(
           "getLock",
@@ -127,10 +146,8 @@ const Reward = observer(() => {
           "getStreamClaimableAmountPerLock",
           [1, web3Store.account, i + 1]
         )
-        if (amountOfRewardsAvailable > 1e18){
-          amountOfRewardsAvailable = 0
-        }
-      
+       
+        console.log("rewards: ",amountOfRewardsAvailable)
       constructedLockPosition = await _createLockPositionObject(
         i + 1,
         amountOfMAINTkn,
@@ -139,12 +156,16 @@ const Reward = observer(() => {
 
       console.log("ust this",i,amountOfRewardsAvailable)
 
-
+      
       lockPositionsList.push(constructedLockPosition)
-
+      totalStakedPosition = totalStakedPosition.add(toBN(amountOfMAINTkn))
     }
-    setLockPositions(lockPositionsList)
-    setDisplayLockPositions(true)
+      const totalStakedPositionToEther = _convertToEtherBalance(totalStakedPosition)
+      setTotalStakedPosition(totalStakedPositionToEther.toString())
+      setTotalStakedPosition(totalStakedPosition)
+      setLockPositions(lockPositionsList)
+      setDisplayLockPositions(true)
+    }
 
   }
 
@@ -174,7 +195,8 @@ const Reward = observer(() => {
   return (
 
     <div className={classes.center}>
-      <div>
+   <HStack spacing='10px'>
+      <Box width="75%">
 
      { 
      displayLockPositions ==false && 
@@ -185,7 +207,7 @@ const Reward = observer(() => {
 
       }
       {
-        displayLockPositions == true && lockPositions.length > 0 && <TableContainer key={seed}>
+        displayLockPositions == true && lockPositions.length > 0 && <TableContainer>
           <Table>
             <Thead>
               <Tr>
@@ -243,7 +265,11 @@ const Reward = observer(() => {
         > Withdraw Rewards </Button>
 
 
-      </div>
+      </Box>
+
+        {/* <StakeModal apr={apr} totalStakedPosition={totalStakedPosition}></StakeModal> */}
+
+      </HStack>
     </div>
   );
 })

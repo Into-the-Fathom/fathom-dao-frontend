@@ -184,6 +184,42 @@
   bottom: 0.5em;
 }
 
+.walletBalanceString {
+  display: inline;
+  font-size: medium;
+}
+
+.walletBalance{
+  display: inline;
+  font-size: x-large;
+  color: gray;
+}
+
+.stakedBalance{
+  display: inline;
+  font-size: x-large;
+  color: gray;
+}
+
+
+.stakedBalanceString{
+  display: inline;
+  font-size: medium;
+  color: gray;
+}
+
+.APR {
+  display: inline;
+  font-size: x-large;
+  color: gray;
+}
+
+.APRString{
+  display: inline;
+  font-size: small;
+  color: gray;
+}
+
 
 
 
