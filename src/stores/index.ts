@@ -1,25 +1,26 @@
 // src/stores/index.js
 
 import React from "react";
-import PoolService from "../services/PoolService";
-import PositionService from "../services/PositionService";
 import ProposalService from "../services/ProposalService";
 import AuthStore from "./auth.store";
 import PoolStore from "./pool.store";
 import PositionStore from "./positions.store";
 import ProposalStore from "./proposal.store";
 
+import ActiveWeb3TransactionsService from "../services/ActiveWeb3TransactionsService";
+import ActiveWeb3Transactions from "./transaction.store";
+
+
 export class RootStore {
-  poolStore: PoolStore;
   authStore: AuthStore;
-  positionStore: PositionStore;
   proposalStore: ProposalStore;
+  transactionStore: ActiveWeb3Transactions;
   
   constructor() {
     this.authStore = new AuthStore(this)
-    this.poolStore = new PoolStore(this,new PoolService())
-    this.positionStore = new PositionStore(this, new PositionService())
     this.proposalStore = new ProposalStore(this, new ProposalService())
+    this.transactionStore = new ActiveWeb3Transactions(this, new ActiveWeb3TransactionsService())
+ 
   }
 }
 

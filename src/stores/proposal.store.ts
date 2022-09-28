@@ -13,12 +13,15 @@ export default class ProposalStore {
     fetchedProposalState:string = "";
     weight:number = 0;
     service:IProposalService;
+    rootStore:RootStore;
 
     constructor(rootStore:RootStore, service: IProposalService) { 
         makeAutoObservable(this);
         this.service = service;
         this.fetchedProposal = {} as IProposal;
         this.fetchedVotes = {} as IVoteCounts;
+
+        this.rootStore = rootStore;
     }
 
     // ["0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"], 
@@ -26,8 +29,8 @@ export default class ProposalStore {
     // ["0x0000000000000000000000000000000000000000000000000000000000000000"], 
     // "Some string"
 
-    createProposal = async (targets:string[], values:number[], calldatas:string[], description:string, account:string): Promise<number> =>{
-        return await this.service.createProposal(targets, values, calldatas, description, account);
+    createProposal = async (targets:string[], values:number[], calldatas:string[], description:string, account:string, chainId:number): Promise<number> =>{
+        return await this.service.createProposal(targets, values, calldatas, description, account,this.rootStore.transactionStore, chainId);
     }
 
     setproposals = (_proposal:IProposal[]) => {
@@ -57,36 +60,36 @@ export default class ProposalStore {
         this.weight = _weight;
     };
     
-    castVote = async (proposalId:string, account:string, support:string) =>{
-        let _weight = await this.service.castVote(proposalId, account, support);
+    castVote = async (proposalId:string, account:string, support:string, chainId:number) =>{
+        let _weight = await this.service.castVote(proposalId, account, support,this.rootStore.transactionStore, chainId);
         runInAction(() =>{
             this.setWeight(_weight)
         })
     }
     
-    fetchProposals = async (account:string) =>{
-        let fetchedProposals = await this.service.viewAllProposals(account);
+    fetchProposals = async (account:string, chainId:number) =>{
+        let fetchedProposals = await this.service.viewAllProposals(account, chainId);
         runInAction(() =>{
             this.setproposals(fetchedProposals)
         })
     }
 
-    fetchProposal = async (proposal:string,account:string) =>{
-        let fetchedProposal = await this.service.viewProposal(proposal, account);
+    fetchProposal = async (proposal:string,account:string, chainId:number) =>{
+        let fetchedProposal = await this.service.viewProposal(proposal, account, chainId);
         runInAction(() =>{
             this.setproposal(fetchedProposal)
         })
     }
 
-    fetchProposalState = async (proposal:string,account:string) =>{
-        let fetchedProposalState = await this.service.viewProposalState(proposal, account);
+    fetchProposalState = async (proposal:string,account:string, chainId:number) =>{
+        let fetchedProposalState = await this.service.viewProposalState(proposal, account, chainId);
         runInAction(() =>{
             this.setproposalState(fetchedProposalState)
         })
     }
 
-    fetchProposalVotes = async (proposal:string,account:string) =>{
-        let fetchedVotes = await this.service.viewVoteCounts(proposal, account);
+    fetchProposalVotes = async (proposal:string,account:string, chainId:number) =>{
+        let fetchedVotes = await this.service.viewVoteCounts(proposal, account, chainId);
         runInAction(() =>{
             this.setproposalVotes(fetchedVotes)
         })

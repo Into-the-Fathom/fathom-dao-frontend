@@ -9,17 +9,19 @@ import { useStores } from '../../stores';
 import useMetaMask from '../../hooks/metamask';
 import { LogLevel, useLogger } from '../../helpers/Logger';
 import IProposal from "../../stores/interfaces/IProposal"
-import { Link, Paper, Typography } from '@mui/material';
+import { Paper, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { observer } from 'mobx-react';
-import {useNavigate } from 'react-router-dom';
+import {useNavigate, Link} from 'react-router-dom';
 import Grid from '@mui/material/Grid';
+import { useWeb3React } from '@web3-react/core';
 
 
 
 
 const AllProposalsView = observer(()  => {
     const { account } = useMetaMask()!
+    const { chainId } = useWeb3React()!
     let logger = useLogger();
 
     let proposeStore = useStores().proposalStore;
@@ -29,7 +31,10 @@ const AllProposalsView = observer(()  => {
 
     useEffect(() => {
         logger.log(LogLevel.info,'fetching proposal information.');
-        proposeStore.fetchProposals(account) // where is this being used?
+        if (chainId){
+          proposeStore.fetchProposals(account, chainId) 
+          
+        }
     },[]);
   
 
@@ -43,13 +48,14 @@ const AllProposalsView = observer(()  => {
               Proposals
             </Typography>
             {proposeStore.fetchedProposals.length === 0 ? 
-            <Typography variant='h6'>No proposals available</Typography> : 
+            <Typography variant='h6'>Loading all proposals</Typography> : 
             <TableContainer >
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
                     <TableCell>Proposal Id Hash:</TableCell>
-                    <TableCell>Description:</TableCell>
+                    <TableCell>Title:</TableCell>
+                    <TableCell>Status:</TableCell>
                     <TableCell align="right"></TableCell>
                   </TableRow>
                 </TableHead>
@@ -60,15 +66,15 @@ const AllProposalsView = observer(()  => {
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
-                          {/* <Button onClick={() => {
-                            //   navigate(`/proposal/${proposal.proposalId}` as never, {} as never);
-                              navigate("/proposal");
-                          }}>{proposal.proposalId.substring(0,4) +" ... " +proposal.proposalId.slice(-4)}</Button> */}
-                          <Link href={`/proposal/${proposal.proposalId}`} >{proposal.proposalId.substring(0,4) +" ... " +proposal.proposalId.slice(-4)}</Link>
+                          <Link to={`/proposal/${proposal.proposalId}`} >{proposal.proposalId.substring(0,4) +" ... " +proposal.proposalId.slice(-4)}</Link>
                       </TableCell>
                     
                       <TableCell component="th" scope="row">
-                        {proposal.description.substring(0,50) +" ... "}
+                        {proposal.description.split('----------------')[0].substring(0,50) +" ... "}
+                      </TableCell>
+                    
+                      <TableCell component="th" scope="row">
+                        {proposal.status}
                       </TableCell>
 
                     </TableRow>

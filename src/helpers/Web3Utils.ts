@@ -1,4 +1,5 @@
-import Web3 from "web3";
+// import Web3 from "web3";
+import Web3 from "xdc3";
 import { AbiItem } from 'web3-utils'
 
 interface ContractMetaData{

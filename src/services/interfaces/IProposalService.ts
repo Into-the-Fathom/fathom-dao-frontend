@@ -1,16 +1,19 @@
 import IProposal from "../../stores/interfaces/IProposal";
 import IVoteCounts from "../../stores/interfaces/IVoteCounts";
+import ActiveWeb3Transactions from "../../stores/transaction.store";
+
 
 export default interface IProposalService{
-    createProposal(targets:string[], values:number[], calldatas:string[], description:string, account:string): Promise<number>;
 
-    viewAllProposals(account:string): Promise<IProposal[]>
+    createProposal(targets:string[], values:number[], calldatas:string[], description:string, account:string,transactionStore:ActiveWeb3Transactions, chainId:number): Promise<number>;
+   
+    viewAllProposals(account:string, chainId:number): Promise<IProposal[]>
 
-    viewProposal(proposalId:string, account:string): Promise<IProposal>
+    viewProposal(proposalId:string, account:string, chainId:number): Promise<IProposal>
 
-    viewProposalState(proposalId:string, account:string): Promise<string>
+    viewProposalState(proposalId:string, account:string, chainId:number): Promise<string>
 
-    viewVoteCounts(proposalId:string, account:string): Promise<IVoteCounts>
+    viewVoteCounts(proposalId:string, account:string, chainId:number): Promise<IVoteCounts>
 
-    castVote(proposalId:string, account:string, support:string): Promise<number>
+    castVote(proposalId:string, account:string, support:string,transactionStore:ActiveWeb3Transactions, chainId:number): Promise<number>
 }

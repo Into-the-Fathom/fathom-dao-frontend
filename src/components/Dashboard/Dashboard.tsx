@@ -27,8 +27,8 @@ import ProposalView from "../Governance/Proposal";
 import { useStores } from "../../stores";
 import { useEffect } from 'react';
 
-
-
+import TransactionStatus from "../Transaction/TransactionStatus"
+import { Palette } from '@mui/icons-material';
 
 
 
@@ -60,7 +60,23 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-const mdTheme = createTheme();
+const mdTheme = createTheme({
+  palette: {
+    primary: {
+      main: "#000000"
+    },
+    secondary: {
+      main: "#006400"
+    },
+    background: {
+      default: "#222222"
+    },
+    // text: {
+    //   primary: "#ffffff"
+    // }
+  }
+});
+
 
 function DashboardContent() {
   const [open, setOpen] = React.useState(true);
@@ -101,7 +117,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Fathom Stablecoin
+              Fathom
             </Typography>
             <Chip label={account} color="primary" />
             <IconButton color="inherit" >
@@ -142,6 +158,7 @@ function DashboardContent() {
           }}
         >
         <Toolbar />
+        <TransactionStatus/>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Routes>
               <Route path="/" element={<ProposeListView />} />

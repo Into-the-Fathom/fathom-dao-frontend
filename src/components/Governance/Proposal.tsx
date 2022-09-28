@@ -22,6 +22,8 @@ import useMetaMask from '../../hooks/metamask';
 import { useLogger } from '../../helpers/Logger';
 import { useNavigate, useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
+import { useWeb3React } from '@web3-react/core';
+
 
 
 
@@ -29,12 +31,12 @@ import Box from '@mui/material/Box';
 const ProposalView = observer(()  => {
 
 
+    const { chainId } = useWeb3React()!
     const { account } = useMetaMask()!
     let logger = useLogger();
     let navigate = useNavigate();
 
     let { _proposalId } = useParams();
-
     let proposeStore = useStores().proposalStore;
 
 
@@ -43,8 +45,8 @@ const ProposalView = observer(()  => {
         // (proposalId:string, account:string, support:string)
 
         try { 
-            if ((typeof _proposalId === "string")){
-                await proposeStore.castVote(_proposalId, account, "1");
+            if ((typeof _proposalId === "string") && chainId){
+                await proposeStore.castVote(_proposalId, account, "1", chainId);
             }
 
         } catch (err) {
@@ -52,13 +54,18 @@ const ProposalView = observer(()  => {
         }
     }
 
+    const toStatus = (_num:string) => {
+
+        return Constants.Status[parseInt(_num)];
+    }
+
     const handleAgainst = async () => {
 
         // (proposalId:string, account:string, support:string)
 
         try { 
-            if ((typeof _proposalId === "string")){
-                await proposeStore.castVote(_proposalId, account, "0");
+            if ((typeof _proposalId === "string") && chainId){
+                await proposeStore.castVote(_proposalId, account, "0", chainId);
             }
 
         } catch (err) {
@@ -71,8 +78,8 @@ const ProposalView = observer(()  => {
         // (proposalId:string, account:string, support:string)
 
         try { 
-            if ((typeof _proposalId === "string")){
-                await proposeStore.castVote(_proposalId, account, "2");
+            if ((typeof _proposalId === "string") && chainId){
+                await proposeStore.castVote(_proposalId, account, "2", chainId);
             }
 
         } catch (err) {
@@ -95,17 +102,32 @@ const ProposalView = observer(()  => {
         );
       }
 
+    function splitIfTitle_title(_string:string) {
+        if(_string){
+            if (_string.includes('---------------')){return _string.split('----------------')[0]}
+            else {return ""}
+        }
+        else {return ""}
+    }
+
+    function splitIfTitle(_string:string) {
+        if(_string){
+            if (_string.includes('---------------')){return _string.split('----------------')[1]}
+            else {return _string}
+        } else {return ""}
+    }
+
     
 
     useEffect(() => {
-
-        proposeStore.fetchProposals(account)
-        if ((typeof _proposalId === "string")){
-            proposeStore.fetchProposal(_proposalId, account)
-            proposeStore.fetchProposalState(_proposalId, account)
-            proposeStore.fetchProposalVotes(_proposalId, account)
-        }
-        
+        if (chainId){
+            proposeStore.fetchProposals(account, chainId)
+            if ((typeof _proposalId === "string") ){
+                proposeStore.fetchProposal(_proposalId, account, chainId)
+                proposeStore.fetchProposalState(_proposalId, account, chainId)
+                proposeStore.fetchProposalVotes(_proposalId, account, chainId)
+            }
+        } 
     },[]);
 
     
@@ -117,7 +139,7 @@ const ProposalView = observer(()  => {
     <Grid item xs={8} md={8} lg={9}>
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
             {proposeStore.fetchedProposals.length === 0 ? 
-            <Typography variant='h6'>No proposals available  Proposal: {_proposalId}</Typography> : 
+            <Typography >Proposal does not exist: {_proposalId}</Typography> : 
             <>
             <Typography component="h2" color="primary" gutterBottom>
                 Proposal Id: 
@@ -126,11 +148,20 @@ const ProposalView = observer(()  => {
                 {_proposalId}
             </Typography>
             <Typography component="h2" color="primary" gutterBottom>
+                Title: 
+            </Typography>
+
+            <Typography gutterBottom>
+                {splitIfTitle_title(proposeStore.fetchedProposal.description)} 
+                {/* {proposeStore.fetchedProposal.description}  */}
+            </Typography>
+            <Typography component="h2" color="primary" gutterBottom>
                 Description: 
             </Typography>
 
             <Typography gutterBottom>
-                {proposeStore.fetchedProposal.description} 
+                {splitIfTitle(proposeStore.fetchedProposal.description)} 
+                {/* {proposeStore.fetchedProposal.description}  */}
             </Typography>
         </>}
         </Paper >
@@ -139,29 +170,31 @@ const ProposalView = observer(()  => {
         <Grid item xs={3} md={3} lg={3}>      
         
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-            <Typography component="h2" color="primary" gutterBottom>
-            Proposal State: 
-        </Typography>
-        <Typography gutterBottom>
-            {proposeStore.fetchedProposalState} 
-        </Typography>
+
+
 
         <Box sx={{ width: '100%' }}>
             <Typography gutterBottom>
                 For: 
             </Typography>
-            <LinearProgressWithLabel variant="determinate" value={100*proposeStore.fetchedVotes.forVotes/proposeStore.fetchedTotalVotes} />
+            <LinearProgressWithLabel variant="determinate" value={100*proposeStore.fetchedVotes.forVotes/proposeStore.fetchedTotalVotes || 0} />
 
             <Typography gutterBottom>
                 Against: 
             </Typography>
-            <LinearProgressWithLabel variant="determinate" value={100*proposeStore.fetchedVotes.againstVotes/proposeStore.fetchedTotalVotes} />
+            <LinearProgressWithLabel variant="determinate" value={100*proposeStore.fetchedVotes.againstVotes/proposeStore.fetchedTotalVotes || 0} />
 
             <Typography gutterBottom>
                 Abstains: 
             </Typography>
-            <LinearProgressWithLabel variant="determinate" value={100*proposeStore.fetchedVotes.abstainVotes/proposeStore.fetchedTotalVotes} />
+            <LinearProgressWithLabel variant="determinate" value={100*proposeStore.fetchedVotes.abstainVotes/proposeStore.fetchedTotalVotes || 0} />
         </Box>  
+        <Typography component="h2" color="primary" gutterBottom>
+            Proposal Status: 
+        </Typography>
+        <Typography gutterBottom>
+            {toStatus(proposeStore.fetchedProposalState)} 
+        </Typography>
         
 
         

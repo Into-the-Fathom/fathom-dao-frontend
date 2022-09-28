@@ -20,7 +20,7 @@ import { HashRouter as Router} from "react-router-dom";
 function App() {
   return (
     // <WinstonProvider logger={logger}>
-    <Router>
+    <Router >
       <Dashboard/>
     </Router>
     // </WinstonProvider>
