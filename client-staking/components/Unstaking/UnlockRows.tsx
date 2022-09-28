@@ -12,10 +12,10 @@ import {
   Box
 } from '@chakra-ui/react'
 
+ 
 
 
-
-const UnlockRows = ({ lockPosition, handleUnlock, getAllLocks }) => {
+const UnlockRows = ({ lockPosition, handleUnlock, handleEarlyUnlock }) => {
 
   const [remainingTime, setRemainingTime] = useState(0)
   const [remainingTimeObject, setRemainingTimeObject] = useState({
@@ -169,10 +169,9 @@ const getTotalBalance = () => {
                 width='55'
                 display='inline-block'
                 h='10'
-                bg='#00FFF9'
                 fontWeight='semibold'
                 fontSize='l'
-                textColor="black"
+                textColor="white"
                 textAlign='center'
                 verticalAlign='middle'>{remainingTimeObject.days} DAYS {remainingTimeObject.h} hrs {remainingTimeObject.m} mins {remainingTimeObject.s} secs
               </Box>
@@ -200,6 +199,13 @@ const getTotalBalance = () => {
           disabled={!isItUnlockable()}
           onClick={() => handleUnlock(lockPosition.lockId)}
         > Unlock </Button>
+      </Td>
+
+      <Td>
+        <Button type="button"
+          disabled={isItUnlockable()}
+          onClick={() => handleEarlyUnlock(lockPosition.lockId)}
+        > Early Withdraw </Button>
       </Td>
     </Tr>
   )

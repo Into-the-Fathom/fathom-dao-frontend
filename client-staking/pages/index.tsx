@@ -4,7 +4,6 @@ import { useDisclosure } from '@chakra-ui/react'
 import classes from '../styles/App.module.css'
 import { useColorMode } from '@chakra-ui/color-mode'
 import React from 'react'
-import { useEffect } from 'react'
 import { useStores } from '../store'
 import {
   MoonIcon,

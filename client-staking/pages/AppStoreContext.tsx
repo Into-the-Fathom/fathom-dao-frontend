@@ -1,8 +1,4 @@
 import React from "react";
-import { useLocalStore } from "mobx-react";
-
-import { Web3Store } from "../store/web3Store";
-import { GovnStore } from "../store/govnStore";
 import { RootStore } from "../store";
 
 const a: any = null;

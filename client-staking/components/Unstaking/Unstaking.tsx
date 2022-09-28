@@ -13,7 +13,7 @@ import {
   } from '@chakra-ui/react'
   
 
-const Unstaking = observer(({lockPositions, getAllLocks, handleUnlock}) => {
+const Unstaking = observer(({lockPositions, handleUnlock,handleEarlyUnlock}) => {
     const [seed, setSeed] = useState(1);
        
     const {web3Store, govnStore} = useStores();
@@ -29,7 +29,7 @@ const Unstaking = observer(({lockPositions, getAllLocks, handleUnlock}) => {
                             Token Balance
                         </Th>
                         <Th>
-                            VOTE Tokens
+                            VOTE Tokens Received
                         </Th>
                         <Th>
                             Remaining Period
@@ -43,9 +43,9 @@ const Unstaking = observer(({lockPositions, getAllLocks, handleUnlock}) => {
 
                     lockPositions.map((lockPosition) => {
                         return <UnlockRows
-                            getAllLocks={getAllLocks}
                             lockPosition={lockPosition}
                             handleUnlock = {handleUnlock}
+                            handleEarlyUnlock={handleEarlyUnlock}
                         />
                     })}
                     

@@ -1,10 +1,8 @@
 import Rewards from '../components/Rewards/Rewards'
 import classes from '../styles/App.module.css'
-import Layout from '../components/Layout'
 
 import ConnectButton from '../components/ConnectButton'
 import { useDisclosure } from '@chakra-ui/react'
-import { useEffect } from 'react'
 import { useStores } from '../store'
 import {
   Box

@@ -9,12 +9,30 @@ import { StakingStore } from '../store/stakingStore';
 import { GovnStore } from '../store/govnStore';
 import { isInteger, toInteger } from 'lodash';
 import { makeCall as mainTokenCall } from '../services/mainToken.js';
+import { toJS } from 'mobx';
 const _convertToEtherBalance =  (balance) => {
     return parseFloat(fromWei(balance)).toFixed(0)
   }
-const getAllLocks = async () => {
-  const web3Store = Web3Store;
-  const stakingStore = StakingStore;
+
+
+  const _createLockPositionObject = async (
+    _lockId, 
+    _VOTETokenBalance, 
+    _MAINTokenBalance,
+    _RemainingUnlockPeriod,
+    _FTHMRewards) => {
+  return {
+    lockId: _lockId,
+    VOTETokenBalance: await _convertToEtherBalance(_VOTETokenBalance),
+    MAINTokenBalance: await _convertToEtherBalance(_MAINTokenBalance),
+    FTHMRewards: await _convertToEtherBalance(_FTHMRewards),
+    RemainingUnlockPeriod: _RemainingUnlockPeriod
+  }
+}
+
+  export const getAllLocks = async () => {
+    const web3Store = Web3Store;
+    const stakingStore = StakingStore;
     let totalStakedPosition = toBN("0")
 
     let result = await stakingGetterCall(
@@ -23,7 +41,9 @@ const getAllLocks = async () => {
     )
     console.log(result)
 
-    
+    let lockPositionsList = []
+    let retrievedLockPosition: any;
+    let constructedLockPosition: any
     for (let i = 0; i < toInteger(result); i++) {
 
       const { 0: amountOfMAINTkn, 1: amountOfveMAINTkn, 2: mainTknShares, 3: positionStreamShares, 4: end, 5: owner } =
@@ -32,15 +52,33 @@ const getAllLocks = async () => {
           [web3Store.account, i + 1]
         )
 
-       
+        let amountOfFTHMAvailable = await stakingContractCall(
+          "getStreamClaimableAmountPerLock",
+          [0, web3Store.account, i + 1]
+        )
+        
+      constructedLockPosition = await _createLockPositionObject(
+        i + 1,
+        amountOfveMAINTkn,
+        amountOfMAINTkn,
+        
+        end,
+        amountOfFTHMAvailable,
+      )
+
+      lockPositionsList.push(constructedLockPosition)
       totalStakedPosition = totalStakedPosition.add(toBN(amountOfMAINTkn))
 
     }
     const totalStakedPositionToEther = _convertToEtherBalance(totalStakedPosition)
+    console.log(constructedLockPosition)
+
+     //stakingStore.setLockPositions(constructedLockPosition)
+    //console.log("positions in ",toJS(stakingStore.lockPositions))
     stakingStore.setTotalStakedBalance(totalStakedPositionToEther)
   }
 
-  const getWalletBalance = async () => {
+  export const getWalletBalance = async () => {
     const web3Store = Web3Store;
   const stakingStore = StakingStore;
     const walletBalance = await mainTokenCall(
@@ -50,7 +88,7 @@ const getAllLocks = async () => {
       stakingStore.setTotalWalletBalance(_convertToEtherBalance(walletBalance).toString())
   }
 
-  const getVoteBalance = async () => {
+  export const getVoteBalance = async () => {
     const web3Store = Web3Store;
     const govnStore = GovnStore;
     const beforeVOTETokenBalance = _voteTokenBalance
@@ -81,7 +119,7 @@ const getAllLocks = async () => {
     return oneDayReward
   }
   
-  const getAPR = async () => {
+  export const getAPR = async () => {
     const web3Store = Web3Store;
     const stakingStore = StakingStore;
     if (web3Store.hasProvider){
@@ -103,7 +141,7 @@ const getAllLocks = async () => {
   }
 
   export const  loadAll = async () => {
-    await getAllLocks()
+     await getAllLocks()
      await getAPR()
      await getWalletBalance()
      await getVoteBalance()
